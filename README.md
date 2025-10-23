@@ -18,12 +18,12 @@ python main.py
   - ``File -- Combine`` 选择需要合并的 **Json** 文件打开
   - 等待处理（程序阻塞）
   - 选择保存文件的位置，填写文件名保存合并后**Json** 文件
-- [x] 统计 **Labelme** 数据标签数量 [x]
+- [x] 统计 **Labelme** 数据标签数量
   - ``File -- Open`` 选择需要统计的 **Json** 文件打开
   - ``File -- Count`` 统计标签数量
-- [x] 生成 **ID** [x]
+- [x] 生成 **ID**
   - 统计标签数量后后 ``File -- Generate ID`` 
-- [x] 图像生成 **MAT** 文件 [x]
+- [x] 图像生成 **MAT** 文件
   - ``File -- Open_tif`` 选择 **TIF** 文件打开
   - ``File -- Save_mat`` 选择保存文件的位置，填写文件名保存 **MAT** 文
 
