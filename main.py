@@ -1,8 +1,15 @@
 import json
 import tkinter as tk
-
+import scipy.io as sio
+import skimage.io
 
 from tkinter import filedialog
+
+
+
+#sio.savemat(r"D:\UseTools\OneDrive\codes\New-Research\data\indianpines_ts.mat", {'imggt': imggt})
+
+
 
 class App(tk.Tk):
     def __init__(self):
@@ -15,6 +22,8 @@ class App(tk.Tk):
         self.dict_count = dict()
         self.id_list = ["背景"]
         self.file = dict()
+        self.label = tk.Label(self, text="")
+        self.label.pack()
 
         self.config(menu=self.Menu)
         self.Menu.add_cascade(label="File", menu=self.top1)
@@ -23,17 +32,26 @@ class App(tk.Tk):
         #self.top1.add_command(label="Json", command=lambda:self.json_format(self.data,self.top2))
         self.top1.add_command(label="Count", command=lambda:self.label_count(self.data))
         self.top1.add_command(label="Id", command=lambda:self.generate_id(self.dict_count))
-        self.top1.add_command(label="Exit", command=self.quit)
         self.top1.add_command(label="Combine", command=self.combine)
+        self.top1.add_command(label="Open_tif", command=self.open_tif)
+        self.top1.add_command(label="Save_mat", command=self.save_mat)
+        self.top1.add_command(label="Exit", command=self.quit)
 
         # 显示根窗口
         self.deiconify()
-        
+    
+    def save_mat(self):
+        fold_path = filedialog.asksaveasfilename(filetypes=[("MATLAB", "*.mat")])
+        sio.savemat(fold_path, {'imggt': self.imggt})
+    def open_tif(self):
+        imgpath = filedialog.askopenfilename()
+        self.imggt = skimage.io.imread(imgpath)
+        self.label.config(text=imgpath)
+
     def select_file(self):
         # 打开文件选择对话框
         file_path = filedialog.askopenfilename()
-        self.label = tk.Label(self, text=file_path)
-        self.label.pack()
+        self.label.config(text=file_path)
 
         # 输出选择的文件路径
         print("Selected file:", file_path)
@@ -41,9 +59,6 @@ class App(tk.Tk):
         # 打开并读取JSON文件
         with open(file_path, 'r', encoding='utf-8') as file:
             self.data = json.load(file)
-
-
-
 
     def label_count(self, json_data):
         for x in json_data["shapes"]:
