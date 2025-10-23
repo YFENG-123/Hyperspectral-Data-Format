@@ -13,6 +13,8 @@ class App(tk.Tk):
 
         self.data = dict()
         self.dict_count = dict()
+        self.id_list = ["背景"]
+        self.file = dict()
 
         self.config(menu=self.Menu)
         self.Menu.add_cascade(label="File", menu=self.top1)
@@ -22,6 +24,7 @@ class App(tk.Tk):
         self.top1.add_command(label="Count", command=lambda:self.label_count(self.data))
         self.top1.add_command(label="Id", command=lambda:self.generate_id(self.dict_count))
         self.top1.add_command(label="Exit", command=self.quit)
+        self.top1.add_command(label="Combine", command=self.combine)
 
         # 显示根窗口
         self.deiconify()
@@ -40,11 +43,7 @@ class App(tk.Tk):
             self.data = json.load(file)
 
 
-    def run(self):
-        self.mainloop()
-    
-    def quit(self):
-        self.destroy()
+
 
     def label_count(self, json_data):
         for x in json_data["shapes"]:
@@ -57,14 +56,39 @@ class App(tk.Tk):
         self.label.pack()
 
     def generate_id(self, dict_count):
+
         key_list = list(dict_count.keys())
         value_list = list(dict_count.values()) 
-        id_list = ["背景"]
+        
         for _ in range(len(key_list)):
-            idx = value_list.index(max(value_list))   #获取最大值索引
-            id_list.append(key_list[idx])       #添加最大值索引对应键
-            value_list[idx] = 0                  #将最大值索引对应值置零
-        print(id_list)
+            idx = value_list.index(max(value_list))     #获取最大值索引
+            self.id_list.append(key_list[idx])               #添加最大值索引对应键
+            value_list[idx] = 0                         #将最大值索引对应值置零
+        print(self.id_list)
+
+    def combine(self):
+        file_path = filedialog.askopenfilenames()
+        file_path_list = list(file_path)
+
+        with open(file_path_list[-1],'r', encoding='utf-8') as f:
+            file_path_list.pop()
+            self.file = json.load(f)
+            print(len(self.file["shapes"]))
+
+
+        while(True):
+            if not file_path_list:
+                break
+            with open(file_path_list[-1],'r', encoding='utf-8') as f:
+                file_path_list.pop()
+                file_temp = json.load(f)
+                for dict_temp in file_temp["shapes"]:
+                    self.file["shapes"].append(dict_temp)
+                print(len(self.file["shapes"]))
+        
+        fold_path = filedialog.asksaveasfilename(filetypes=[("JSON", "*.json")])
+        with open(fold_path,'w', encoding='utf-8') as f:
+            json.dump(self.file, f, indent=4)
 
     def json_format(self,json_data,menu):
         for key, value in json_data.items():
@@ -83,7 +107,10 @@ class App(tk.Tk):
             else:
                 sub.add_command(label=value)
 
-
-
+    def run(self):
+        self.mainloop()
+    
+    def quit(self):
+        self.destroy()
 app = App()
 app.run()
