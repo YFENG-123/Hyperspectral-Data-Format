@@ -1,12 +1,12 @@
 class MatModel:
-    mat_dict: dict
+    mat_path: dict
 
     def __init__(self, root):
         self.root = root
 
-    # mat_dict
-    def get_mat_dict(self) -> dict:
-        return self.mat_dict
+    # mat_path
+    def set_mat_path(self, mat_path: dict) -> None:
+        self.mat_path = mat_path
 
-    def set_mat_dict(self, mat_dict: dict):
-        self.mat_dict = mat_dict
+    def get_mat_path(self) -> dict:
+        return self.mat_path

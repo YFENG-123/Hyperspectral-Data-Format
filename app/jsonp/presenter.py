@@ -40,13 +40,13 @@ class JsonPresenter:
             for shapes in json_dict["shapes"]:
                 json_pack.shapes.append(shapes)
 
-        #json_pack.flag = json_dict_list[0]["flags"]
-        #json_pack.imagePath = json_dict_list[0]["imagePath"]
-        #json_pack.imageData = json_dict_list[0]["imageData"]
-        #json_pack.imageHeight = json_dict_list[0]["imageHeight"]
-        #json_pack.imageWidth = json_dict_list[0]["imageWidth"]
-        #json_pack.text = json_dict_list[0]["text"]
-        #json_pack.description = json_dict_list[0]["description"]
+        json_pack.flag = json_dict_list[0]["flags"]
+        json_pack.imagePath = json_dict_list[0]["imagePath"]
+        json_pack.imageData = json_dict_list[0]["imageData"]
+        json_pack.imageHeight = json_dict_list[0]["imageHeight"]
+        json_pack.imageWidth = json_dict_list[0]["imageWidth"]
+        # json_pack.text = json_dict_list[0]["text"]
+        # json_pack.description = json_dict_list[0]["description"]
         return vars(json_pack)
 
     def save_json(self, json_file_dict: dict) -> None:
@@ -78,6 +78,14 @@ class JsonPresenter:
             id_list.append(key_list[idx])  # 添加最大值索引对应键
             value_list[idx] = 0  # 将最大值索引对应值置零
         return id_list
+
+    def replace_label(
+        self, json_dict: dict, original_label: str, new_label: str
+    ) -> dict:
+        """
+        @chutaiyang
+        """
+        # return json_dict
 
 
 if __name__ == "__main__":
