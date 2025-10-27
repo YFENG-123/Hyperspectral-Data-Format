@@ -33,7 +33,6 @@ class Views(tk.Tk):
         self.tif_menu.add_command(label="Open")
         self.tif_menu.add_command(label="Save_tif")
 
-
         self.label_json = tk.Label(self, text="Json:", wraplength=300)
         self.label_json.pack()
         self.label_count = tk.Label(self, text="Count: ", wraplength=300)
@@ -49,6 +48,7 @@ class Views(tk.Tk):
     ## Json
     def bind_json_replace_label(self, command: callable):
         self.json_menu.entryconfig("Replace_label", command=command)
+
     def bind_json_open(self, command: callable):
         self.json_menu.entryconfig("Open", command=command)
 
@@ -64,16 +64,16 @@ class Views(tk.Tk):
     # Tif
     def bind_tif_open(self, command: callable):
         self.tif_menu.entryconfig("Open", command=command)
-    
+
     def bind_tif_save(self, command: callable):
         self.tif_menu.entryconfig("Save_tif", command=command)
 
     ## Mat
     def bind_mat_open(self, command: callable):
         self.mat_menu.entryconfig("Open", command=command)
+
     def bind_mat_save(self, command: callable):
         self.mat_menu.entryconfig("Save_mat", command=command)
-
 
     # label
     ## Json
@@ -85,10 +85,11 @@ class Views(tk.Tk):
 
     def set_id_label(self, text: str):
         self.label_id.config(text="Id: " + text)
+
     ## Tif
     def set_tif_label(self, text: str):
         self.label_tif.config(text="TIF: " + text)
-    
+
     ## Mat
     def set_mat_label(self, text: str):
         self.label_mat.config(text="Mat: " + text)

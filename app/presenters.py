@@ -52,25 +52,28 @@ class Presenters:
         self.view.set_json_label(json_path)
 
     def tif_open(self):
-        """ 
-        @ww973, @liux11111111
+        """
+        @wwwyy3555-oss, @liux11111111
         """
         pass
+
     def tif_save(self):
-        """ 
-        @ww973, @liux11111111
+        """
+        @wwwyy3555-oss, @liux11111111
         """
         pass
 
     def mat_open(self):
-        """ 
-        @ww973, @liux11111111
+        """
+        @wwwyy3555-oss, @liux11111111
         """
         pass
+
     def mat_save(self):
-        """ 
-        @ww973, @liux11111111
         """
+        @wwwyy3555-oss, @liux11111111
+        """
+        pass
 
     def json_combine(self):  # 数据量大，暂时不持久化
         json_path_list = self.json.get_json_path_list()
@@ -94,7 +97,7 @@ class Presenters:
 
         id_list = self.model.json.get_id_list()
         self.view.set_id_label(str(id_list))
-    
+
     def json_replace_label(self):
         """
         @chutaiyang

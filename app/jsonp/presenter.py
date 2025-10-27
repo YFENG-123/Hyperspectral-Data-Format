@@ -78,12 +78,14 @@ class JsonPresenter:
             id_list.append(key_list[idx])  # 添加最大值索引对应键
             value_list[idx] = 0  # 将最大值索引对应值置零
         return id_list
-    
-    def replace_label(self, json_dict: dict, original_label: str, new_label: str) -> dict:
+
+    def replace_label(
+        self, json_dict: dict, original_label: str, new_label: str
+    ) -> dict:
         """
         @chutaiyang
         """
-        #return json_dict
+        # return json_dict
 
 
 if __name__ == "__main__":

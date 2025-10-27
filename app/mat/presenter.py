@@ -15,9 +15,9 @@ class MatPresenter:
         mat_path = filedialog.askopenfilename(filetypes=[("MATLAB", "*.mat")])
         mat_dict = sio.loadmat(mat_path)
         """
-        @ww973, @liux11111111
+        @wwwyy3555-oss, @liux11111111
         """
-        #return mat_ndarry, mat_path
+        # return mat_ndarry, mat_path
 
     def save_mat(self, mat_ndarray):
         fold_path = filedialog.asksaveasfilename(
@@ -26,7 +26,7 @@ class MatPresenter:
             initialfile="save.mat",
         )
         """
-        @ww973, @liux11111111
+        @wwwyy3555-oss, @liux11111111
         """
         pass
 
