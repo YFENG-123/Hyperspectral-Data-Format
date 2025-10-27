@@ -21,6 +21,7 @@ class Views(tk.Tk):
         self.menu.add_cascade(label="Mat", menu=self.mat_menu)
         self.menu.add_cascade(label="TIF", menu=self.tif_menu)
 
+        self.json_menu.add_command(label="Replace_label")
         self.json_menu.add_command(label="Combine")
         self.json_menu.add_command(label="Open")
         self.json_menu.add_command(label="Count")
@@ -30,6 +31,8 @@ class Views(tk.Tk):
         self.mat_menu.add_command(label="Save_mat")
 
         self.tif_menu.add_command(label="Open")
+        self.tif_menu.add_command(label="Save_tif")
+
 
         self.label_json = tk.Label(self, text="Json:", wraplength=300)
         self.label_json.pack()
@@ -42,6 +45,10 @@ class Views(tk.Tk):
         self.label_mat = tk.Label(self, text="Mat:", wraplength=300)
         self.label_mat.pack()
 
+    # menu
+    ## Json
+    def bind_json_replace_label(self, command: callable):
+        self.json_menu.entryconfig("Replace_label", command=command)
     def bind_json_open(self, command: callable):
         self.json_menu.entryconfig("Open", command=command)
 
@@ -54,6 +61,22 @@ class Views(tk.Tk):
     def bind_json_id(self, command: callable):
         self.json_menu.entryconfig("Id", command=command)
 
+    # Tif
+    def bind_tif_open(self, command: callable):
+        self.tif_menu.entryconfig("Open", command=command)
+    
+    def bind_tif_save(self, command: callable):
+        self.tif_menu.entryconfig("Save_tif", command=command)
+
+    ## Mat
+    def bind_mat_open(self, command: callable):
+        self.mat_menu.entryconfig("Open", command=command)
+    def bind_mat_save(self, command: callable):
+        self.mat_menu.entryconfig("Save_mat", command=command)
+
+
+    # label
+    ## Json
     def set_json_label(self, text: str):
         self.label_json.config(text="Json: " + text)
 
@@ -62,9 +85,13 @@ class Views(tk.Tk):
 
     def set_id_label(self, text: str):
         self.label_id.config(text="Id: " + text)
-
+    ## Tif
     def set_tif_label(self, text: str):
         self.label_tif.config(text="TIF: " + text)
+    
+    ## Mat
+    def set_mat_label(self, text: str):
+        self.label_mat.config(text="Mat: " + text)
 
     def run(self):
         self.mainloop()
