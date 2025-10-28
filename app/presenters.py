@@ -1,29 +1,30 @@
+import spectral
+import numpy as np
+from scipy.io import savemat
+
 from views import Views
 from models import Models
 
 from jsonp.presenter import JsonPresenter
-from jsonp.view import JsonView
-from jsonp.model import JsonModel
-
 from mat.presenter import MatPresenter
-from mat.view import MatView
-from mat.model import MatModel
-
 from tif.presenter import TifPresenter
-from tif.view import TifView
-from tif.model import TifModel
+from hdr.presenter import HdrPresenter
+
+
+from hdr.model import HdrModel
 
 
 class Presenters:
     def __init__(self, views: Views, models: Models):
         # 接收上级实例
-        self.view = views
-        self.model = models
+        self.views = views
+        self.models = models
 
         # 创建下级presenter
-        self.json = JsonPresenter(self.view.json, self.model.json)
-        self.tif = TifPresenter(self.view.tif, self.model.tif)
-        self.mat = MatPresenter(self.view.mat, self.model.mat)
+        self.json = JsonPresenter(self.views.json, self.models.json)
+        self.tif = TifPresenter(self.views.tif, self.models.tif)
+        self.mat = MatPresenter(self.views.mat, self.models.mat)
+        self.hdr = HdrPresenter(self.views.hdr, self.models.hdr)  
 
         # 绑定函数
         ## json
@@ -41,16 +42,50 @@ class Presenters:
         views.bind_mat_open(self.mat_open)
         views.bind_mat_save(self.mat_save)
 
-        pass
+        ## hdr
+        views.bind_hdr_open(self.hdr_open)
+        views.bind_hdr_convert_to_mat(self.hdr_convert_to_mat)
 
+
+
+    # Json
     def json_open(self):
         json_dict, json_path = self.json.load_json()
-        self.model.json.set_json_dict(json_dict)
-        self.model.json.set_json_path(json_path)
+        self.models.json.set_json_dict(json_dict)
+        self.models.json.set_json_path(json_path)
 
-        json_path = self.model.json.get_json_path()
-        self.view.set_json_label(json_path)
+        json_path = self.models.json.get_json_path()
+        self.views.set_json_label(json_path)
+    def json_combine(self):  # 数据量大，暂时不持久化
+        json_path_list = self.json.get_json_path_list()
+        self.models.json.set_json_path_list(json_path_list)
+        json_dict_list = self.json.load_json_list(json_path_list)
+        json_dict = self.json.combine_json(json_dict_list)
+        self.json.save_json(json_dict)
 
+    def json_count_label(self):
+        json_dict = self.models.json.get_json_dict()
+        count_dict = self.json.count_label(json_dict)
+        self.models.json.set_count_dict(count_dict)
+
+        count_dict = self.models.json.get_count_dict()
+        self.views.set_count_label(str(count_dict))
+
+    def json_generate_id(self):
+        count_dict = self.models.json.get_count_dict()
+        id_list = self.json.generate_id(count_dict)
+        self.models.json.set_id_list(id_list)
+
+        id_list = self.models.json.get_id_list()
+        self.views.set_id_label(str(id_list))
+
+    def json_replace_label(self):
+        """
+        @chutaiyang
+        """
+        pass
+
+    # Tif
     def tif_open(self):
         """
         @wwwyy3555-oss, @liux11111111
@@ -63,6 +98,7 @@ class Presenters:
         """
         pass
 
+    # Mat
     def mat_open(self):
         """
         @wwwyy3555-oss, @liux11111111
@@ -75,31 +111,13 @@ class Presenters:
         """
         pass
 
-    def json_combine(self):  # 数据量大，暂时不持久化
-        json_path_list = self.json.get_json_path_list()
-        self.model.json.set_json_path_list(json_path_list)
-        json_dict_list = self.json.load_json_list(json_path_list)
-        json_dict = self.json.combine_json(json_dict_list)
-        self.json.save_json(json_dict)
+    # Hdr
+    def hdr_open(self):
+        hdr = self.hdr.load_hdr()
+        self.models.hdr.set_hdr(hdr)
 
-    def json_count_label(self):
-        json_dict = self.model.json.get_json_dict()
-        count_dict = self.json.count_label(json_dict)
-        self.model.json.set_count_dict(count_dict)
+    def hdr_convert_to_mat(self):
+        hdr = self.models.hdr.get_hdr()
+        hdr_ndarray = self.hdr.load_hdr_ndarray(hdr)
+        self.mat.save_mat(hdr_ndarray)
 
-        count_dict = self.model.json.get_count_dict()
-        self.view.set_count_label(str(count_dict))
-
-    def json_generate_id(self):
-        count_dict = self.model.json.get_count_dict()
-        id_list = self.json.generate_id(count_dict)
-        self.model.json.set_id_list(id_list)
-
-        id_list = self.model.json.get_id_list()
-        self.view.set_id_label(str(id_list))
-
-    def json_replace_label(self):
-        """
-        @chutaiyang
-        """
-        pass
