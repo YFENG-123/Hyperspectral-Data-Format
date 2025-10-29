@@ -19,10 +19,14 @@ class TifPresenter:
         return tif_ndarray, tif_path
 
     def save_tif(self, tif_ndarray) -> None:
-        """
-        @wwwyy3555-oss, @liux11111111
-        """
-        pass
+        fold_path = filedialog.asksaveasfilename(
+            filetypes=[("TIFF", "*.tif"), ("TIFF", "*.tiff")],
+            defaultextension=".tif",
+            initialfile="output.tif",
+        )   
+        if fold_path:  
+            cv2.imwrite(fold_path, tif_ndarray)
+        return None
 
 
 if __name__ == "__main__":
