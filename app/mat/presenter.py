@@ -19,16 +19,13 @@ class MatPresenter:
         """
         # return mat_ndarry, mat_path
 
-    def save_mat(self, mat_ndarray):
+    def save_mat(self, ndarray):
         fold_path = filedialog.asksaveasfilename(
             filetypes=[("MATLAB", "*.mat")],
             defaultextension=".mat",
             initialfile="save.mat",
         )
-        """
-        @wwwyy3555-oss, @liux11111111
-        """
-        pass
+        sio.savemat(fold_path, {"mat_ndarray": ndarray})
 
 
 if __name__ == "__main__":
