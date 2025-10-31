@@ -33,6 +33,7 @@ class Presenters:
         views.bind_json_open(self.json_open)
         views.bind_json_count(self.json_count_label)
         views.bind_json_id(self.json_generate_id)
+        views.bind_json_convert_to_tif(self.json_convert_to_tif)
 
         ## tif
         views.bind_tif_open(self.tif_open)
@@ -85,6 +86,15 @@ class Presenters:
         @chutaiyang
         """
         pass
+
+    def json_convert_to_tif(self):
+        """
+        @YFENG-123
+        """
+        json_dict = self.models.json.get_json_dict()
+        ndarray = self.json.convert_to_ndarray(json_dict)
+        self.tif.save_tif(ndarray)
+
 
     # Tif
     def tif_open(self):
