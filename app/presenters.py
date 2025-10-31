@@ -11,6 +11,9 @@ from tif.presenter import TifPresenter
 from hdr.presenter import HdrPresenter
 
 
+from hdr.model import HdrModel
+
+
 class Presenters:
     def __init__(self, views: Views, models: Models):
         # 接收上级实例
