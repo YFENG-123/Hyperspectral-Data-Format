@@ -27,8 +27,7 @@ class MatPresenter:
         )
         if not fold_path:
             return None
-        sio.savemat(fold_path, mat_dict)
-        return None
+        sio.savemat(fold_path, {"mat_ndarray": mat_dict})
 
 
 if __name__ == "__main__":
