@@ -91,7 +91,44 @@ class Presenters:
     def json_replace_label(self):
         """
         @chutaiyang
+        标签替换功能：用户交互界面，输入原始标签和新标签进行替换
         """
+        # 检查是否有加载的JSON数据
+        json_dict = self.model.json.get_json_dict()
+        if json_dict is None:
+            # 如果没有数据，先加载JSON文件
+            self.json_open()
+            json_dict = self.model.json.get_json_dict()
+            if json_dict is None:
+                return  # 用户取消了文件选择
+        
+        # 创建输入对话框
+        import tkinter as tk
+        from tkinter import simpledialog
+        
+        # 获取原始标签输入
+        original_label = simpledialog.askstring("标签替换", "请输入要替换的原始标签名称:")
+        if original_label is None:  # 用户点击取消
+            return
+            
+        # 获取新标签输入
+        new_label = simpledialog.askstring("标签替换", f"请输入替换'{original_label}'的新标签名称:")
+        if new_label is None:  # 用户点击取消
+            return
+        
+        # 执行标签替换
+        modified_json = self.json.replace_label(json_dict, original_label, new_label)
+        
+        # 更新模型数据
+        self.model.json.set_json_dict(modified_json)
+        
+        # 显示替换结果
+        self.view.set_json_label(f"标签已替换: {original_label} -> {new_label}")
+        
+        # 保存修改后的文件
+        save_choice = tk.messagebox.askyesno("保存文件", "是否保存修改后的文件？")
+        if save_choice:
+            self.json.save_json(modified_json)
         pass
 
     def json_delete_label(self):
