@@ -88,29 +88,35 @@ class Presenters:
 
     # Tif
     def tif_open(self):
-        """
-        @wwwyy3555-oss, @liux11111111
-        """
-        pass
+        tif_array, tif_path = self.tif.load_tif()
+        self.model.tif.set_tif_array(tif_array)
+        self.model.tif.set_tif_path(tif_path)
+
+        tif_path = self.model.tif.get_tif_path()
+        self.view.set_tif_label(tif_path)
 
     def tif_save(self):
-        """
-        @wwwyy3555-oss, @liux11111111
-        """
-        pass
+        tif_array = self.model.tif.get_tif_array()
+        if tif_array is None:
+            return None
+        self.tif.save_tif(tif_array)
+        return None
 
     # Mat
     def mat_open(self):
-        """
-        @wwwyy3555-oss, @liux11111111
-        """
-        pass
+        mat_dict, mat_path = self.mat.load_mat()
+        self.model.mat.set_mat_dict(mat_dict)
+        self.model.mat.set_mat_path(mat_path)
+
+        mat_path = self.model.mat.get_mat_path()
+        self.view.set_mat_label(mat_path)
 
     def mat_save(self):
-        """
-        @wwwyy3555-oss, @liux11111111
-        """
-        pass
+        mat_dict = self.model.mat.get_mat_dict()
+        if mat_dict is None:
+            return None
+        self.mat.save_mat(mat_dict)
+        return None
 
     # Hdr
     def hdr_open(self):
