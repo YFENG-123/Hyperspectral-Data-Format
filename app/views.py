@@ -39,6 +39,7 @@ class Views(tk.Tk):
 
         self.hdr_menu.add_command(label="Open")
         self.hdr_menu.add_command(label="Convert_to_mat")
+        self.hdr_menu.add_command(label="Convert_to_mat_resize")
 
         self.label_json = tk.Label(self, text="Json:", wraplength=300)
         self.label_json.pack()
@@ -89,6 +90,10 @@ class Views(tk.Tk):
     
     def bind_hdr_convert_to_mat(self, command: callable):
         self.hdr_menu.entryconfig("Convert_to_mat", command=command)
+    
+    def bind_hdr_convert_to_mat_resize(self, command: callable):
+        self.hdr_menu.entryconfig("Convert_to_mat_resize", command=command)
+
 
     # label
     ## Json
