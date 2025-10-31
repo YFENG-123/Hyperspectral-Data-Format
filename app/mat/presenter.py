@@ -1,5 +1,6 @@
 import tkinter as tk
 import scipy.io as sio
+import numpy as np
 from tkinter import filedialog
 
 from mat.view import MatView
@@ -10,20 +11,23 @@ class MatPresenter:
     def __init__(self, mat_view: MatView, mat_model: MatModel):
         pass
 
-    def load_mat(self):  #####
-        mat_path = filedialog.askopenfilename(filetypes=[("MATLAB", "*.mat")])
-        imggt = sio.loadmat(mat_path)
-        for key, value in imggt.items():
-            print(key)
-        return imggt, mat_path
+    def load_mat(self) -> tuple[dict, str]:
 
-    def save_mat(self, imggt):  ####
+        mat_path = filedialog.askopenfilename(filetypes=[("MATLAB", "*.mat")])
+        if not mat_path:
+            return None, ""
+        mat_dict = sio.loadmat(mat_path)
+        return mat_dict, mat_path
+
+    def save_mat(self, mat_dict):
         fold_path = filedialog.asksaveasfilename(
             filetypes=[("MATLAB", "*.mat")],
             defaultextension=".mat",
-            initialfile="imggt.mat",
+            initialfile="save.mat",
         )
-        sio.savemat(fold_path, {"imggt": self.imggt})
+        if not fold_path:
+            return None
+        sio.savemat(fold_path, {"mat_ndarray": mat_dict})
 
 
 if __name__ == "__main__":
