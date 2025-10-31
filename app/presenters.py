@@ -45,6 +45,7 @@ class Presenters:
         ## hdr
         views.bind_hdr_open(self.hdr_open)
         views.bind_hdr_convert_to_mat(self.hdr_convert_to_mat)
+        views.bind_hdr_convert_to_mat_resize(self.hdr_convert_to_mat_resize)
 
 
 
@@ -120,4 +121,13 @@ class Presenters:
         hdr = self.models.hdr.get_hdr()
         hdr_ndarray = self.hdr.load_hdr_ndarray(hdr)
         self.mat.save_mat(hdr_ndarray)
+    
+    def hdr_convert_to_mat_resize(self):
+        hdr = self.models.hdr.get_hdr()
+        x1 = 500
+        x2 = 1000
+        y1 = 500
+        y2 = 1000
+        self.hdr.save_hdf5_resize(hdr, x1, y1, x2, y2)
+
 
