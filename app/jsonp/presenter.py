@@ -1,4 +1,7 @@
 import json
+import cv2
+import numpy as np
+import cupy as cp
 import tkinter as tk
 from typing import Tuple
 from tkinter import filedialog
@@ -97,6 +100,45 @@ class JsonPresenter:
                     shape["label"] = new_label
         
         return modified_json
+
+    def convert_to_ndarray(self, json_dict: dict, id_list: list) -> np.ndarray:
+        """
+        @YFENG-123
+        """
+        # 生成颜色列表（数量无限，不重复）
+        colors = np.random.randint(0, 256, size=(1000, 3))
+
+        # 获取图像尺寸
+        image_height = json_dict["imageHeight"]
+        image_width = json_dict["imageWidth"]
+        # 创建一个与图像大小相同的全零数组
+        image_array = np.zeros((image_height, image_width), dtype=np.uint8)
+
+        # 绘制每个形状
+        for shape in json_dict["shapes"]:
+            # 提取多边形点坐标
+            points = np.array(shape["points"], dtype=np.int32)
+            cv2.fillPoly(
+                image_array, [points], True, colors[id_list.index(shape["label"])]
+            )
+        return image_array
+
+    def draw_to_ndarray(self, image_ndarray: np.ndarray, json_dict: dict, id_list: list):
+        """
+        @YFENG-123
+        """
+        # 生成颜色列表（数量无限，不重复）
+        colors = np.random.randint(0, 256, size=(1000, 3))
+
+        # 绘制每个形状
+        for shape in json_dict["shapes"]:
+            # 提取多边形点坐标
+            points = np.array(shape["points"], dtype=np.int32)
+            cv2.fillPoly(
+                image_ndarray, [points], True, colors[id_list.index(shape["label"])]
+            )
+        return image_ndarray
+    
 
 
 if __name__ == "__main__":

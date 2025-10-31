@@ -2,6 +2,7 @@ import tkinter as tk
 from jsonp.view import JsonView
 from tif.view import TifView
 from mat.view import MatView
+from hdr.view import HdrView
 
 
 class Views(tk.Tk):
@@ -10,6 +11,7 @@ class Views(tk.Tk):
         self.json = JsonView(self)
         self.tif = TifView(self)
         self.mat = MatView(self)
+        self.hdr = HdrView(self)
 
         self.menu = tk.Menu(self)
         self.config(menu=self.menu)
@@ -17,21 +19,28 @@ class Views(tk.Tk):
         self.json_menu = tk.Menu(self.menu)
         self.mat_menu = tk.Menu(self.menu)
         self.tif_menu = tk.Menu(self.menu)
+        self.hdr_menu = tk.Menu(self.menu)
         self.menu.add_cascade(label="Json", menu=self.json_menu)
         self.menu.add_cascade(label="Mat", menu=self.mat_menu)
         self.menu.add_cascade(label="TIF", menu=self.tif_menu)
+        self.menu.add_cascade(label="HDR", menu=self.hdr_menu)
 
         self.json_menu.add_command(label="Replace_label")
         self.json_menu.add_command(label="Combine")
         self.json_menu.add_command(label="Open")
         self.json_menu.add_command(label="Count")
         self.json_menu.add_command(label="Id")
+        self.json_menu.add_command(label="Convert_to_tif")
 
         self.mat_menu.add_command(label="Open")
         self.mat_menu.add_command(label="Save_mat")
 
         self.tif_menu.add_command(label="Open")
         self.tif_menu.add_command(label="Save_tif")
+
+        self.hdr_menu.add_command(label="Open")
+        self.hdr_menu.add_command(label="Convert_to_mat")
+        self.hdr_menu.add_command(label="Convert_to_mat_resize")
 
         self.label_json = tk.Label(self, text="Json:", wraplength=300)
         self.label_json.pack()
@@ -43,6 +52,8 @@ class Views(tk.Tk):
         self.label_tif.pack()
         self.label_mat = tk.Label(self, text="Mat:", wraplength=300)
         self.label_mat.pack()
+        self.label_hdr = tk.Label(self, text="HDR:", wraplength=300)
+        self.label_hdr.pack()
 
     # menu
     ## Json
@@ -61,6 +72,9 @@ class Views(tk.Tk):
     def bind_json_id(self, command: callable):
         self.json_menu.entryconfig("Id", command=command)
 
+    def bind_json_convert_to_tif(self, command: callable):
+        self.json_menu.entryconfig("Convert_to_tif", command=command)
+
     # Tif
     def bind_tif_open(self, command: callable):
         self.tif_menu.entryconfig("Open", command=command)
@@ -74,6 +88,16 @@ class Views(tk.Tk):
 
     def bind_mat_save(self, command: callable):
         self.mat_menu.entryconfig("Save_mat", command=command)
+
+    def bind_hdr_open(self, command: callable):
+        self.hdr_menu.entryconfig("Open", command=command)
+    
+    def bind_hdr_convert_to_mat(self, command: callable):
+        self.hdr_menu.entryconfig("Convert_to_mat", command=command)
+    
+    def bind_hdr_convert_to_mat_resize(self, command: callable):
+        self.hdr_menu.entryconfig("Convert_to_mat_resize", command=command)
+
 
     # label
     ## Json
@@ -94,8 +118,15 @@ class Views(tk.Tk):
     def set_mat_label(self, text: str):
         self.label_mat.config(text="Mat: " + text)
 
+    ## Hdr
+    def set_hdr_label(self, text: str):
+        self.label_hdr.config(text="HDR: " + text)
+
+
+
+
     def run(self):
         self.mainloop()
 
-    def Json_View(self):
-        pass
+
+
