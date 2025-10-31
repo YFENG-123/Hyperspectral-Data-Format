@@ -87,8 +87,19 @@ class JsonPresenter:
     ) -> dict:
         """
         @chutaiyang
+        标签替换功能：遍历JSON字典中的标注数据，将指定的原始标签替换为新的标签
         """
-        # return json_dict
+        modified_json = json_dict.copy()#创建JSON字典的深拷贝，避免修改原始数据
+        
+        # 遍历所有标注形状（shapes）
+        if "shapes" in modified_json:
+            for shape in modified_json["shapes"]:
+                # 检查当前形状的标签是否与原始标签匹配
+                if shape.get("label") == original_label:
+                    # 替换标签名称
+                    shape["label"] = new_label
+        
+        return modified_json
 
     def convert_to_ndarray(self, json_dict: dict, id_list: list) -> np.ndarray:
         """
