@@ -26,6 +26,7 @@ class Views(tk.Tk):
         self.menu.add_cascade(label="HDR", menu=self.hdr_menu)
 
         self.json_menu.add_command(label="Replace_label")
+        self.json_menu.add_command(label="Delete_label")
         self.json_menu.add_command(label="Combine")
         self.json_menu.add_command(label="Open")
         self.json_menu.add_command(label="Count")
@@ -37,6 +38,7 @@ class Views(tk.Tk):
 
         self.tif_menu.add_command(label="Open")
         self.tif_menu.add_command(label="Save_tif")
+        self.tif_menu.add_command(label="Draw_label")
 
         self.hdr_menu.add_command(label="Open")
         self.hdr_menu.add_command(label="Convert_to_mat")
@@ -60,6 +62,9 @@ class Views(tk.Tk):
     def bind_json_replace_label(self, command: callable):
         self.json_menu.entryconfig("Replace_label", command=command)
 
+    def bind_json_delete_label(self, command: callable):
+        self.json_menu.entryconfig("Delete_label", command=command)
+
     def bind_json_open(self, command: callable):
         self.json_menu.entryconfig("Open", command=command)
 
@@ -81,6 +86,9 @@ class Views(tk.Tk):
 
     def bind_tif_save(self, command: callable):
         self.tif_menu.entryconfig("Save_tif", command=command)
+
+    def bind_tif_draw_label(self, command: callable):
+        self.tif_menu.entryconfig("Draw_label", command=command)
 
     ## Mat
     def bind_mat_open(self, command: callable):

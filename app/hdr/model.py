@@ -5,9 +5,9 @@ class HdrModel:
     def __init__(self, root):
         self.root = root
 
-    # mat_path
-    def set_hdr(self, mat_path: SpectralLibrary) -> None:
-        self.mat_path = mat_path
+    # hdr_path
+    def set_hdr(self, hdr_path: SpectralLibrary) -> None:
+        self.hdr_path = hdr_path
 
     def get_hdr(self) -> SpectralLibrary:
-        return self.mat_path
+        return self.hdr_path

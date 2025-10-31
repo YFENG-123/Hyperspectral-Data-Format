@@ -59,7 +59,7 @@ class JsonPresenter:
             initialfile="combine.json",
         )
         with open(fold_path, "w", encoding="utf-8") as file:
-            json.dump(json_file_dict, file, indent=4)
+            json.dump(json_file_dict, file, indent=4, ensure_ascii=False)
         return None
 
     def count_label(self, json_dict: dict) -> dict:
@@ -89,30 +89,48 @@ class JsonPresenter:
         @chutaiyang
         """
         # return json_dict
+    
+    def delete_label(self, json_dict: dict, label: str) -> dict:
+        """
+        @YFENG-123
+        """
+        data = [shape for shape in json_dict["shapes"] if shape["label"] != label]
+        json_dict["shapes"] = data
+        return json_dict
 
-    def convert_to_ndarray(self, json_dict: dict, id_list: list) -> np.ndarray:
+    def convert_to_ndarray(
+        self, json_dict: dict, id_list: list, thickness
+    ) -> np.ndarray:
         """
         @YFENG-123
         """
         # 生成颜色列表（数量无限，不重复）
-        colors = np.random.randint(0, 256, size=(1000, 3))
+        colors = np.random.randint(0, 256, size=(len(id_list), 3))
 
         # 获取图像尺寸
         image_height = json_dict["imageHeight"]
         image_width = json_dict["imageWidth"]
-        # 创建一个与图像大小相同的全零数组
-        image_array = np.zeros((image_height, image_width), dtype=np.uint8)
+        # 创建一个与图像大小相同的三维全一数组
+        image_array = np.ones((image_height, image_width, 3), dtype=np.uint8) * 255
+        print(image_array)
 
         # 绘制每个形状
         for shape in json_dict["shapes"]:
-            # 提取多边形点坐标
             points = np.array(shape["points"], dtype=np.int32)
-            cv2.fillPoly(
-                image_array, [points], True, colors[id_list.index(shape["label"])]
-            )
+            print(points)
+            color = tuple(colors[id_list.index(shape["label"])])
+            print(color)
+            color = (int(color[0]), int(color[1]), int(color[2]))
+            if thickness == -1:  # 填充多边形
+                cv2.fillPoly(image_array, [points], color)
+            else:  # 绘制多边形轮廓
+                cv2.polylines(image_array, [points], True, color, thickness)
+
         return image_array
 
-    def draw_to_ndarray(self, image_ndarray: np.ndarray, json_dict: dict, id_list: list):
+    def draw_to_ndarray(
+        self, image_ndarray: np.ndarray, json_dict: dict, id_list: list
+    ):
         """
         @YFENG-123
         """
@@ -127,7 +145,6 @@ class JsonPresenter:
                 image_ndarray, [points], True, colors[id_list.index(shape["label"])]
             )
         return image_ndarray
-    
 
 
 if __name__ == "__main__":
