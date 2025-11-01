@@ -14,28 +14,54 @@ python app/app.py
 ```
 
 ## 功能
+- [x] 打开 **JSON** 文件
+  - ``Json -- Open`` 选择需要打开的 **Json** 文件
 - [x] 合并 **Labelme** 标注数据 
-  - ``File -- Combine`` 选择需要合并的 **Json** 文件打开
+  - ``Json -- Combine`` 选择需要合并的 **Json** 文件打开
   - 等待处理（程序阻塞）
-  - 选择保存文件的位置，填写文件名保存合并后**Json** 文件
+  - 选择保存文件的位置，填写文件名保存合并后的**Json** 文件
 - [x] 统计 **Labelme** 数据标签数量
-  - ``File -- Open`` 选择需要统计的 **Json** 文件打开
-  - ``File -- Count`` 统计标签数量
-- [x] 生成 **ID**
-  - 统计标签数量后后 ``File -- Generate ID`` 
-- [ ] 图像生成 **MAT** 文件
-  - ``File -- Open_tif`` 选择 **TIF** 文件打开
-  - ``File -- Save_mat`` 选择保存文件的位置，填写文件名保存 **MAT** 文
-
-- [ ] *绘制 **Labelme** 数据 **(开发中)***
-  - ``File -- Open_tif`` 选择 **TIF** 文件打开
-  - ``File -- Open`` 选择 **Json** 文件打开
-  - ``File -- Draw`` 绘制 **Labelme** 数据 **(开发中)**
-件
-- [ ] *框选区域裁切 **(开发中)***
-- [ ] ***Labelme** 数据生成**MAT** 文件 **(开发中)***
-
-
+  - ``Json -- Open`` 选择需要统计的 **Json** 文件打开
+  - ``Json -- Count`` 统计标签数量
+- [x] 生成**Labelme** 数据标签ID
+  - ``Json -- Open`` 选择需要统计ID的 **Json** 文件打开
+  - ``Json -- Id``  统计标签数量后生成标签 ID
+- [x] **Labelme** 数据转换为 **TIF** 文件
+  - ``Json -- Open`` 选择需要转换的 **Json** 文件打开
+  - ``Json -- Convert_to_tif`` 将标注数据转换为 **TIF** 图像格式
+  - 等待处理（程序阻塞）
+  - 选择保存文件的位置，填写文件名保存转换后的**TIF** 格式文件
+- [x] 打开 **MAT** 文件
+  - ``Mat -- Open`` 选择需要打开的 **MAT** 文件
+- [x] 打开 **TIF** 文件
+  - ``TIF -- Open`` 选择需要打开的 **TIF** 文件
+- [x] 保存 **TIF** 文件
+  - ``TIF -- Save_tif`` 选择保存文件的位置，填写文件名保存 **TIF** 文件
+- [x] 打开 **HDR** 文件
+  - ``HDR -- Open`` 选择需要打开的 **HDR** 文件
+- [ ] 替换**Labelme** 数据标签 ***(修复中)***
+  - ``Json -- Open`` 选择需要替换标签的 **Json** 文件打开
+  - ``Json -- Replace_label`` 输入原始标签和新标签进行替换 
+  - 选择是否保存修改后的文件
+- [ ] 删除**Labelme** 数据标签 ***(修复中)***
+  - ``Json -- Open`` 选择需要删除标签的 **Json** 文件打开
+  - ``Json -- Delete_label`` 删除指定标签的标注
+  - 保存修改后的 **Json** 文件
+- [ ] 图像生成 **MAT** 文件 ***(修复中)***
+  - ``Mat -- Save_mat`` 选择保存文件的位置，填写文件名保存 **MAT** 文件
+- [ ] 绘制 **Labelme** 数据 ***(开发中)***
+  - ``TIF -- Open`` 选择 **TIF** 文件打开
+  - ``Json -- Open`` 选择 **Json** 文件打开
+  - ``Json -- Id`` 生成标签 ID
+  - ``TIF -- Draw_label`` 在 **TIF** 图像上绘制 **Labelme** 标注数据
+- [ ] **HDR** 转换为 **MAT** 文件 ***(修复中)***
+  - ``HDR -- Open`` 选择需要转换的 **HDR** 文件打开
+  - ``HDR -- Convert_to_mat`` 将 **HDR** 高光谱数据转换为 **MAT** 格式
+  - 选择保存文件的位置，填写文件名保存 **MAT** 文件
+- [ ] **HDR** 裁剪并转换为 **MAT** 文件 ***(开发中)***
+  - ``HDR -- Open`` 选择需要转换的 **HDR** 文件打开
+  - ``HDR -- Convert_to_mat_resize`` 指定裁剪区域坐标，将裁剪后的 **HDR** 数据转换为 **MAT** 格式
+  - 自动保存为 **MAT** 文件
 
 
 
