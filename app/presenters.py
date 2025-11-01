@@ -168,8 +168,10 @@ class Presenters:
 
     def json_remove_overlap(self):
         json_dict = self.models.json.get_json_dict()
-        json_dict = self.json.remove_overlap(json_dict)
-        self.json.save_json(json_dict)
+        json_dict_remove,json_dict_overlap= self.json.remove_overlap(json_dict)
+        self.json.seve_json_with_name(json_dict_remove, "remove")
+        self.json.seve_json_with_name(json_dict_overlap, "overlap")
+
     # Tif
     def tif_open(self):
         tif_array, tif_path = self.tif.load_tif()

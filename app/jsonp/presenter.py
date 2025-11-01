@@ -8,13 +8,14 @@ from tkinter import filedialog
 from jsonp.view import JsonView
 from jsonp.model import JsonModel
 from jsonp.schema import JsonSchema
+from shapely.geometry import Polygon
 
 
 class JsonPresenter:
     def __init__(self, json_view: JsonView, json_model: JsonModel):
         pass
 
-    def load_json(self) -> Tuple[dict, str]:
+    def load_json(self) -> tuple[dict, str]:
         json_path = filedialog.askopenfilename()
         with open(json_path, "r", encoding="utf-8") as file:
             json_dict = json.load(file)
@@ -53,6 +54,9 @@ class JsonPresenter:
         return vars(json_pack)
 
     def save_json(self, json_file_dict: dict) -> None:
+        """
+        避免使用该函数，推荐使用save_json_with_name
+        """
         fold_path = filedialog.asksaveasfilename(
             filetypes=[("JSON", "*.json")],
             defaultextension=".json",
@@ -61,6 +65,16 @@ class JsonPresenter:
         with open(fold_path, "w", encoding="utf-8") as file:
             json.dump(json_file_dict, file, indent=4, ensure_ascii=False)
         return None
+    
+    def seve_json_with_name(self, json_file_dict: dict, name: str) -> None:
+        fold_path = filedialog.asksaveasfilename(
+            filetypes=[("JSON", "*.json")],
+            defaultextension=".json",
+            initialfile=name,
+        )
+        with open(fold_path, "w", encoding="utf-8") as file:
+            json.dump(json_file_dict, file, indent=4, ensure_ascii=False)
+
 
     def count_label(self, json_dict: dict) -> dict:
         count_dict = {}
@@ -89,8 +103,8 @@ class JsonPresenter:
         @chutaiyang
         标签替换功能：遍历JSON字典中的标注数据，将指定的原始标签替换为新的标签
         """
-        modified_json = json_dict.copy()#创建JSON字典的深拷贝，避免修改原始数据
-        
+        modified_json = json_dict.copy()  # 创建JSON字典的深拷贝，避免修改原始数据
+
         # 遍历所有标注形状（shapes）
         if "shapes" in modified_json:
             for shape in modified_json["shapes"]:
@@ -99,7 +113,7 @@ class JsonPresenter:
                     # 替换标签名称
                     shape["label"] = new_label
         return modified_json
-    
+
     def delete_label(self, json_dict: dict, label: str) -> dict:
         """
         @YFENG-123
@@ -155,38 +169,43 @@ class JsonPresenter:
                 image_ndarray, [points], True, colors[id_list.index(shape["label"])]
             )
         return image_ndarray
-    def remove_overlap(self, json_dict: dict) -> dict:
+
+    def remove_overlap(self, json_dict: dict) -> tuple[dict , dict]:
         """
         @YFENG-123
         """
         # 创建一个空字典用于存储去重后的数据
-        unique_shapes = [json_dict["shapes"][0]]
-
-
+        unique_shapes = []
+        overlap_shapes = []
         # 遍历原始数据中的每个形状
         for shape in json_dict["shapes"]:
-            # 获取当前形状的标签和点坐标
-            label = shape["label"]
-            points = shape["points"]
-            # 该多边形轮廓检查是否与已存在的多边形轮廓检重叠
-            if any(
-                cv2.pointPolygonTest(existing_points, points[0], False) >= 0
-                for existing_points in unique_shapes.values()
-            ):
-                # 如果有重叠，则跳过当前形状
+            result = False
+            try:
+                poly1 = Polygon(shape["points"])
+            except Exception:  # 如果无法创建多边形对象，则跳过当前形状
+                print("无法创建多边形对象")
+                overlap_shapes.append(shape)
+                print(shape)
                 continue
-            else:
-                # 否则，将当前形状添加到去重后的字典中
-                unique_shapes[label] = points
-
-        # 更新原始数据中的形状列表
-        json_dict["shapes"] = [
-            {"label": label, "points": points} for label, points in unique_shapes.items()
-        ]
-
-        return json_dict
-
-
+            for unique_shape in unique_shapes:
+                try:
+                    poly2 = Polygon(unique_shape["points"])
+                except Exception:  # 如果无法创建多边形对象，则跳过当前形状
+                    print("无法创建多边形对象")
+                    unique_shapes.append(unique_shape)
+                    print(unique_shape)
+                    continue
+                result = result or poly1.intersects(poly2)
+            if not result:  # 如果两个形状没有重叠，则添加到去重后的数据中
+                unique_shapes.append(shape)
+            else:  # 如果两个形状有重叠，则跳过当前形状
+                print("重叠")
+                overlap_shapes.append(shape)
+                print(shape)
+        json_dict1 = json_dict.copy()
+        json_dict["shapes"] = unique_shapes
+        json_dict1["shapes"] = overlap_shapes
+        return json_dict, json_dict1
 
 
 if __name__ == "__main__":
