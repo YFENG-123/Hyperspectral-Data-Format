@@ -1,4 +1,5 @@
 import json
+from tkinter import simpledialog
 import cv2
 import numpy as np
 import cupy as cp
@@ -113,10 +114,14 @@ class JsonPresenter:
                     shape["label"] = new_label
         return modified_json
 
-    def delete_label(self, json_dict: dict, label: str) -> dict:
+    def delete_label(self, json_dict: dict) -> dict:
         """
         @YFENG-123
         """
+        # 获取新标签输入
+        label = simpledialog.askstring("标签删除", "请输入新标签名称:")
+        if label is None:  # 用户点击取消
+            return
         data = [shape for shape in json_dict["shapes"] if shape["label"] != label]
         json_dict["shapes"] = data
         return json_dict

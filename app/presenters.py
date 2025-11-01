@@ -145,10 +145,10 @@ class Presenters:
         json_dict = self.models.json.get_json_dict()
 
         # 删除标签
-        json_dict = self.json.delete_label(json_dict, "label")  #####
+        json_dict = self.json.delete_label(json_dict)  #####
 
         # 保存 json
-        self.json.save_json(json_dict)
+        self.json.seve_json_with_name(json_dict, "deleted")
 
     def json_convert_to_tif(self):
         """
