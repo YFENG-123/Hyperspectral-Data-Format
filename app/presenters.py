@@ -96,11 +96,11 @@ class Presenters:
         标签替换功能：用户交互界面，输入原始标签和新标签进行替换
         """
         # 检查是否有加载的JSON数据
-        json_dict = self.model.json.get_json_dict()
+        json_dict = self.models.json.get_json_dict()
         if json_dict is None:
             # 如果没有数据，先加载JSON文件
             self.json_open()
-            json_dict = self.model.json.get_json_dict()
+            json_dict = self.models.json.get_json_dict()
             if json_dict is None:
                 return  # 用户取消了文件选择
 
@@ -123,18 +123,18 @@ class Presenters:
             return
 
         # 执行标签替换
-        modified_json = self.json.replace_label(json_dict, original_label, new_label)
+        modified_json = self.jsons.replace_label(json_dict, original_label, new_label)
 
         # 更新模型数据
-        self.model.json.set_json_dict(modified_json)
+        self.model.json.set_jsons_dict(modified_json)
 
         # 显示替换结果
-        self.view.set_json_label(f"标签已替换: {original_label} -> {new_label}")
+        self.view.set_jsons_label(f"标签已替换: {original_label} -> {new_label}")
 
         # 保存修改后的文件
         save_choice = tk.messagebox.askyesno("保存文件", "是否保存修改后的文件？")
         if save_choice:
-            self.json.save_json(modified_json)
+            self.jsons.save_json(modified_json)
         pass
 
     def json_delete_label(self):
