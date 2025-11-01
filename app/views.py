@@ -107,13 +107,12 @@ class Views(tk.Tk):
 
     def bind_hdr_open(self, command: callable):
         self.hdr_menu.entryconfig("Open", command=command)
-    
+
     def bind_hdr_convert_to_mat(self, command: callable):
         self.hdr_menu.entryconfig("Convert_to_mat", command=command)
-    
+
     def bind_hdr_convert_to_mat_resize(self, command: callable):
         self.hdr_menu.entryconfig("Convert_to_mat_resize", command=command)
-
 
     # label
     ## Json
@@ -138,11 +137,5 @@ class Views(tk.Tk):
     def set_hdr_label(self, text: str):
         self.label_hdr.config(text="HDR: " + text)
 
-
-
-
     def run(self):
         self.mainloop()
-
-
-

@@ -65,7 +65,7 @@ class JsonPresenter:
         with open(fold_path, "w", encoding="utf-8") as file:
             json.dump(json_file_dict, file, indent=4, ensure_ascii=False)
         return None
-    
+
     def seve_json_with_name(self, json_file_dict: dict, name: str) -> None:
         fold_path = filedialog.asksaveasfilename(
             filetypes=[("JSON", "*.json")],
@@ -74,7 +74,6 @@ class JsonPresenter:
         )
         with open(fold_path, "w", encoding="utf-8") as file:
             json.dump(json_file_dict, file, indent=4, ensure_ascii=False)
-
 
     def count_label(self, json_dict: dict) -> dict:
         count_dict = {}
@@ -170,7 +169,7 @@ class JsonPresenter:
             )
         return image_ndarray
 
-    def remove_overlap(self, json_dict: dict) -> tuple[dict , dict]:
+    def remove_overlap(self, json_dict: dict) -> tuple[dict, dict]:
         """
         @YFENG-123
         """

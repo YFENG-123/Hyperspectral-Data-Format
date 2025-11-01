@@ -103,30 +103,34 @@ class Presenters:
             json_dict = self.model.json.get_json_dict()
             if json_dict is None:
                 return  # 用户取消了文件选择
-        
+
         # 创建输入对话框
         import tkinter as tk
         from tkinter import simpledialog
-        
+
         # 获取原始标签输入
-        original_label = simpledialog.askstring("标签替换", "请输入要替换的原始标签名称:")
+        original_label = simpledialog.askstring(
+            "标签替换", "请输入要替换的原始标签名称:"
+        )
         if original_label is None:  # 用户点击取消
             return
-            
+
         # 获取新标签输入
-        new_label = simpledialog.askstring("标签替换", f"请输入替换'{original_label}'的新标签名称:")
+        new_label = simpledialog.askstring(
+            "标签替换", f"请输入替换'{original_label}'的新标签名称:"
+        )
         if new_label is None:  # 用户点击取消
             return
-        
+
         # 执行标签替换
         modified_json = self.json.replace_label(json_dict, original_label, new_label)
-        
+
         # 更新模型数据
         self.model.json.set_json_dict(modified_json)
-        
+
         # 显示替换结果
         self.view.set_json_label(f"标签已替换: {original_label} -> {new_label}")
-        
+
         # 保存修改后的文件
         save_choice = tk.messagebox.askyesno("保存文件", "是否保存修改后的文件？")
         if save_choice:
@@ -168,7 +172,7 @@ class Presenters:
 
     def json_remove_overlap(self):
         json_dict = self.models.json.get_json_dict()
-        json_dict_remove,json_dict_overlap= self.json.remove_overlap(json_dict)
+        json_dict_remove, json_dict_overlap = self.json.remove_overlap(json_dict)
         self.json.seve_json_with_name(json_dict_remove, "remove")
         self.json.seve_json_with_name(json_dict_overlap, "overlap")
 

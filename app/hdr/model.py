@@ -1,4 +1,6 @@
 from spectral.io.envi import SpectralLibrary
+
+
 class HdrModel:
     hdr: SpectralLibrary
 
