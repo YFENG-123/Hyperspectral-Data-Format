@@ -1,3 +1,4 @@
+from shapely import Polygon
 import spectral
 import numpy as np
 from scipy.io import savemat
@@ -35,8 +36,9 @@ class Presenters:
         views.bind_json_count(self.json_count_label)
         views.bind_json_id(self.json_generate_id)
         views.bind_json_convert_to_tif(self.json_convert_to_tif)
-        views.bind_json_remove_overlap(self.json_remove_overlap)
         views.bind_json_convert_to_mat(self.json_convert_to_mat)
+        views.bind_json_remove_overlap(self.json_remove_overlap)
+        views.bind_json_func(self.json_func)
 
         ## tif
         views.bind_tif_open(self.tif_open)
@@ -145,7 +147,7 @@ class Presenters:
         json_dict = self.models.json.get_json_dict()
 
         # 删除标签
-        json_dict = self.json.delete_label(json_dict)  #####
+        json_dict = self.json.delete_label(json_dict)
 
         # 保存 json
         self.json.seve_json_with_name(json_dict, "deleted")
@@ -175,6 +177,37 @@ class Presenters:
         json_dict_remove, json_dict_overlap = self.json.remove_overlap(json_dict)
         self.json.seve_json_with_name(json_dict_remove, "remove")
         self.json.seve_json_with_name(json_dict_overlap, "overlap")
+    
+    def json_func(self):
+        json_dict1, _ = self.json.load_json()
+        json_dict2, _ = self.json.load_json()
+        json_dict_shapes = []
+        for shape1 in json_dict1["shapes"]:
+            result = False
+            try:
+                poly1 = Polygon(shape1["points"])
+            except:
+                json_dict_shapes.append(shape1)
+                continue
+            for shape2 in json_dict2["shapes"]:
+                try:
+                    poly2 = Polygon(shape2["points"])
+                except:
+                    json_dict_shapes.append(shape2)
+                    continue
+                result = result or poly1.equals(poly2)
+
+            if result:
+                continue
+            else:
+                json_dict_shapes.append(shape1)
+
+
+        json_dict = json_dict1.copy()
+        json_dict["shapes"] = json_dict_shapes
+        self.json.save_json(json_dict)
+
+
 
     # Tif
     def tif_open(self):

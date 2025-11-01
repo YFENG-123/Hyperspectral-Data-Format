@@ -34,6 +34,7 @@ class Views(tk.Tk):
         self.json_menu.add_command(label="Convert_to_tif")
         self.json_menu.add_command(label="Convert_to_mat")
         self.json_menu.add_command(label="Remove_overlap")
+        self.json_menu.add_command(label="func")
 
         self.mat_menu.add_command(label="Open")
         self.mat_menu.add_command(label="Save_mat")
@@ -59,6 +60,8 @@ class Views(tk.Tk):
         self.label_hdr = tk.Label(self, text="HDR:", wraplength=300)
         self.label_hdr.pack()
 
+    def bind_json_func(self, command: callable):
+        self.json_menu.entryconfig("func", command=command)
     # menu
     ## Json
     def bind_json_replace_label(self, command: callable):
