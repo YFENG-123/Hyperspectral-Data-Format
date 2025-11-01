@@ -155,6 +155,38 @@ class JsonPresenter:
                 image_ndarray, [points], True, colors[id_list.index(shape["label"])]
             )
         return image_ndarray
+    def remove_overlap(self, json_dict: dict) -> dict:
+        """
+        @YFENG-123
+        """
+        # 创建一个空字典用于存储去重后的数据
+        unique_shapes = [json_dict["shapes"][0]]
+
+
+        # 遍历原始数据中的每个形状
+        for shape in json_dict["shapes"]:
+            # 获取当前形状的标签和点坐标
+            label = shape["label"]
+            points = shape["points"]
+            # 该多边形轮廓检查是否与已存在的多边形轮廓检重叠
+            if any(
+                cv2.pointPolygonTest(existing_points, points[0], False) >= 0
+                for existing_points in unique_shapes.values()
+            ):
+                # 如果有重叠，则跳过当前形状
+                continue
+            else:
+                # 否则，将当前形状添加到去重后的字典中
+                unique_shapes[label] = points
+
+        # 更新原始数据中的形状列表
+        json_dict["shapes"] = [
+            {"label": label, "points": points} for label, points in unique_shapes.items()
+        ]
+
+        return json_dict
+
+
 
 
 if __name__ == "__main__":

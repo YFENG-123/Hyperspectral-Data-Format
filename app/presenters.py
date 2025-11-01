@@ -35,6 +35,8 @@ class Presenters:
         views.bind_json_count(self.json_count_label)
         views.bind_json_id(self.json_generate_id)
         views.bind_json_convert_to_tif(self.json_convert_to_tif)
+        views.bind_json_remove_overlap(self.json_remove_overlap)
+        views.bind_json_convert_to_mat(self.json_convert_to_mat)
 
         ## tif
         views.bind_tif_open(self.tif_open)
@@ -133,7 +135,7 @@ class Presenters:
 
     def json_delete_label(self):
         """
-        @YFENG-123
+        @chutaiyang
         """
         # 加载 json
         json_dict = self.models.json.get_json_dict()
@@ -158,6 +160,16 @@ class Presenters:
         # 保存 tif
         self.tif.save_tif(ndarray)
 
+    def json_convert_to_mat(self):
+        """
+        @chutaiyang
+        """
+        pass
+
+    def json_remove_overlap(self):
+        json_dict = self.models.json.get_json_dict()
+        json_dict = self.json.remove_overlap(json_dict)
+        self.json.save_json(json_dict)
     # Tif
     def tif_open(self):
         tif_array, tif_path = self.tif.load_tif()
