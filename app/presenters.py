@@ -123,18 +123,18 @@ class Presenters:
             return
 
         # 执行标签替换
-        modified_json = self.jsons.replace_label(json_dict, original_label, new_label)
+        modified_json = self.json.replace_label(json_dict, original_label, new_label)
 
         # 更新模型数据
-        self.model.json.set_jsons_dict(modified_json)
+        self.models.json.set_json_dict(modified_json)
 
         # 显示替换结果
-        self.view.set_jsons_label(f"标签已替换: {original_label} -> {new_label}")
+        self.views.set_json_label(f"标签已替换: {original_label} -> {new_label}")
 
         # 保存修改后的文件
         save_choice = tk.messagebox.askyesno("保存文件", "是否保存修改后的文件？")
         if save_choice:
-            self.jsons.save_json(modified_json)
+            self.json.save_json(modified_json)
         pass
 
     def json_delete_label(self):
