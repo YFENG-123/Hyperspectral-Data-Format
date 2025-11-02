@@ -39,17 +39,15 @@ python app/app.py
   - ``TIF -- Save_tif`` 选择保存文件的位置，填写文件名保存 **TIF** 文件
 - [x] 打开 **HDR** 文件
   - ``HDR -- Open`` 选择需要打开的 **HDR** 文件
-- [ ] 替换**Labelme** 数据标签 ***(修复中)***
+- [x] 替换**Labelme** 数据标签 
   - ``Json -- Open`` 选择需要替换标签的 **Json** 文件打开
   - ``Json -- Replace_label`` 输入原始标签和新标签进行替换 
   - 选择是否保存修改后的文件
-- [ ] 删除**Labelme** 数据标签 ***(修复中)***
+- [x] 删除**Labelme** 数据标签
   - ``Json -- Open`` 选择需要删除标签的 **Json** 文件打开
   - ``Json -- Delete_label`` 删除指定标签的标注
   - 保存修改后的 **Json** 文件
-- [ ] 图像生成 **MAT** 文件 ***(修复中)***
-  - ``Mat -- Save_mat`` 选择保存文件的位置，填写文件名保存 **MAT** 文件
-- [ ] 绘制 **Labelme** 数据 ***(开发中)***
+- [x] 绘制 **Labelme** 数据
   - ``TIF -- Open`` 选择 **TIF** 文件打开
   - ``Json -- Open`` 选择 **Json** 文件打开
   - ``Json -- Id`` 生成标签 ID
@@ -62,6 +60,8 @@ python app/app.py
   - ``HDR -- Open`` 选择需要转换的 **HDR** 文件打开
   - ``HDR -- Convert_to_mat_resize`` 指定裁剪区域坐标，将裁剪后的 **HDR** 数据转换为 **MAT** 格式
   - 自动保存为 **MAT** 文件
+- [ ] 图像生成 **MAT** 文件 ***(修复中)***
+  - ``Mat -- Save_mat`` 选择保存文件的位置，填写文件名保存 **MAT** 文件
 
 
 
