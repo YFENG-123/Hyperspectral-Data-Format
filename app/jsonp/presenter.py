@@ -103,24 +103,14 @@ class JsonPresenter:
         
         # 获取原始标签输入
         original_label = simpledialog.askstring("标签替换", "请输入要替换的原始标签名称:")
-        if original_label is None:  # 用户点击取消
-            return
-        
-        # 输入校验：去除首尾空格
-        original_label = original_label.strip()
-        if not original_label:
-            messagebox.showerror("输入错误", "原始标签不能为空！")
+        original_label = self._validate_label_input(original_label, "原始")
+        if original_label is None:  # 用户点击取消或输入为空
             return
             
         # 获取新标签输入
         new_label = simpledialog.askstring("标签替换", f"请输入替换'{original_label}'的新标签名称:")
-        if new_label is None:  # 用户点击取消
-            return
-        
-        # 输入校验：去除首尾空格
-        new_label = new_label.strip()
-        if not new_label:
-            messagebox.showerror("输入错误", "新标签不能为空！")
+        new_label = self._validate_label_input(new_label, "新")
+        if new_label is None:  # 用户点击取消或输入为空
             return
         
         # 检查标签是否相同
@@ -197,6 +187,29 @@ class JsonPresenter:
                     shape["label"] = new_label
                     replaced_count += 1
         return replaced_count
+
+    def _validate_label_input(self, label: str, label_type: str) -> str:
+        """
+        @chutaiyang
+        可复用的标签输入验证接口：验证标签输入并返回处理后的标签
+        
+        Args:
+            label (str): 用户输入的标签
+            label_type (str): 标签类型描述（如"原始"、"新"）
+            
+        Returns:
+            str: 验证通过的处理后标签，如果验证失败返回None
+        """
+        if label is None:  # 用户点击取消
+            return None
+        
+        # 去除首尾空格
+        label = label.strip()
+        if not label:
+            messagebox.showerror("输入错误", f"{label_type}标签不能为空！")
+            return None
+            
+        return label
 
     
     def delete_label(self, json_dict: dict, label: str) -> dict:
