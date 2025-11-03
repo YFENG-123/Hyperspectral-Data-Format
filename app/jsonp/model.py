@@ -1,9 +1,10 @@
 class JsonModel:
     json_dict: dict
     json_path: str
-    json_path_list: list
     count_dict: dict
     id_list: list
+    json_path_list: list
+
 
     def __init__(self, root):
         self.root = root

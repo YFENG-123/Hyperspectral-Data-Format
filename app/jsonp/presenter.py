@@ -2,9 +2,7 @@ import json
 from tkinter import simpledialog
 import cv2
 import numpy as np
-import cupy as cp
 import tkinter as tk
-from typing import Tuple
 from tkinter import filedialog
 from jsonp.view import JsonView
 from jsonp.model import JsonModel
@@ -13,8 +11,9 @@ from shapely.geometry import Polygon
 
 
 class JsonPresenter:
-    def __init__(self, json_view: JsonView, json_model: JsonModel):
-        pass
+    def __init__(self, view: JsonView, model: JsonModel):
+        self.view = view
+        self.model = model
 
     def load_json(self) -> tuple[dict, str]:
         json_path = filedialog.askopenfilename()

@@ -25,12 +25,11 @@ class Views(tk.Tk):
         self.menu.add_cascade(label="TIF", menu=self.tif_menu)
         self.menu.add_cascade(label="HDR", menu=self.hdr_menu)
 
+        self.json_menu.add_command(label="Open")
         self.json_menu.add_command(label="Replace_label")
         self.json_menu.add_command(label="Delete_label")
         self.json_menu.add_command(label="Combine")
-        self.json_menu.add_command(label="Open")
-        self.json_menu.add_command(label="Count")
-        self.json_menu.add_command(label="Id")
+
         self.json_menu.add_command(label="Convert_to_tif")
         self.json_menu.add_command(label="Convert_to_mat")
         self.json_menu.add_command(label="Remove_overlap")
@@ -72,12 +71,6 @@ class Views(tk.Tk):
 
     def bind_json_combine(self, command: callable):
         self.json_menu.entryconfig("Combine", command=command)
-
-    def bind_json_count(self, command: callable):
-        self.json_menu.entryconfig("Count", command=command)
-
-    def bind_json_id(self, command: callable):
-        self.json_menu.entryconfig("Id", command=command)
 
     def bind_json_convert_to_tif(self, command: callable):
         self.json_menu.entryconfig("Convert_to_tif", command=command)

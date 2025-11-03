@@ -32,8 +32,6 @@ class Presenters:
         views.bind_json_delete_label(self.json_delete_label)
         views.bind_json_combine(self.json_combine)
         views.bind_json_open(self.json_open)
-        views.bind_json_count(self.json_count_label)
-        views.bind_json_id(self.json_generate_id)
         views.bind_json_convert_to_tif(self.json_convert_to_tif)
         views.bind_json_remove_overlap(self.json_remove_overlap)
         views.bind_json_convert_to_mat(self.json_convert_to_mat)
@@ -63,15 +61,7 @@ class Presenters:
         json_path = self.models.json.get_json_path()
         self.views.set_json_label(json_path)
 
-    def json_combine(self):  # 数据量大，暂时不持久化
-        json_path_list = self.json.get_json_path_list()
-        self.models.json.set_json_path_list(json_path_list)
-        json_dict_list = self.json.load_json_list(json_path_list)
-        json_dict = self.json.combine_json(json_dict_list)
-        self.json.save_json(json_dict)
-
-    def json_count_label(self):
-        # 统计标签，并保存
+        # 统计标签
         json_dict = self.models.json.get_json_dict()
         count_dict = self.json.count_label(json_dict)
         self.models.json.set_count_dict(count_dict)
@@ -80,15 +70,21 @@ class Presenters:
         count_dict = self.models.json.get_count_dict()
         self.views.set_count_label(str(count_dict))
 
-    def json_generate_id(self):
-        # 生成id，并保存
-        count_dict = self.models.json.get_count_dict()
+        # 生成id
         id_list = self.json.generate_id(count_dict)
         self.models.json.set_id_list(id_list)
 
         # 显示id
         id_list = self.models.json.get_id_list()
         self.views.set_id_label(str(id_list))
+
+
+    def json_combine(self):  # 数据量大，暂时不持久化
+        json_path_list = self.json.get_json_path_list()
+        self.models.json.set_json_path_list(json_path_list)
+        json_dict_list = self.json.load_json_list(json_path_list)
+        json_dict = self.json.combine_json(json_dict_list)
+        self.json.save_json(json_dict)
 
     def json_replace_label(self):
         """
