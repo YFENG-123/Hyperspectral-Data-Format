@@ -209,14 +209,14 @@ class Presenters:
     # Mat
     def mat_open(self):
         mat_dict, mat_path = self.mat.load_mat()
-        self.model.mat.set_mat_dict(mat_dict)
-        self.model.mat.set_mat_path(mat_path)
+        self.models.mat.set_mat_dict(mat_dict)
+        self.models.mat.set_mat_path(mat_path)
 
-        mat_path = self.model.mat.get_mat_path()
+        mat_path = self.models.mat.get_mat_path()
         self.view.set_mat_label(mat_path)
 
     def mat_save(self):
-        mat_dict = self.model.mat.get_mat_dict()
+        mat_dict = self.models.mat.get_mat_dict()
         if mat_dict is None:
             return None
         self.mat.save_mat(mat_dict)
@@ -224,18 +224,17 @@ class Presenters:
 
     # Hdr
     def hdr_open(self):
-        hdr = self.hdr.load_hdr()
-        self.models.hdr.set_hdr(hdr)
+        hdr_ndarray = self.hdr.load_hdr()
+        self.models.hdr.set_hdr(hdr_ndarray)
 
     def hdr_convert_to_mat(self):
-        hdr = self.models.hdr.get_hdr()
-        hdr_ndarray = self.hdr.load_hdr_ndarray(hdr)
-        self.hdr.save_hdf5_p(hdr_ndarray)
+        hdr_ndarray = self.models.hdr.get_hdr()
+        self.hdr.save_hdf5(hdr_ndarray)
 
     def hdr_convert_to_mat_resize(self):
-        hdr = self.models.hdr.get_hdr()
+        hdr_ndarray = self.models.hdr.get_hdr()
         x1 = 500
         x2 = 1000
         y1 = 500
         y2 = 1000
-        self.hdr.save_hdf5_resize(hdr, x1, y1, x2, y2)
+        self.hdr.save_hdf5_resize(hdr_ndarray, x1, y1, x2, y2)

@@ -1,15 +1,15 @@
-from spectral.io.envi import SpectralLibrary
+import numpy as np
 
 
 class HdrModel:
-    hdr: SpectralLibrary
+    hdr: np.ndarray
 
     def __init__(self, root):
         self.root = root
 
     # hdr_path
-    def set_hdr(self, hdr_path: SpectralLibrary) -> None:
-        self.hdr_path = hdr_path
+    def set_hdr(self, hdr: np.ndarray) -> None:
+        self.hdr = hdr
 
-    def get_hdr(self) -> SpectralLibrary:
-        return self.hdr_path
+    def get_hdr(self) -> np.ndarray:
+        return self.hdr

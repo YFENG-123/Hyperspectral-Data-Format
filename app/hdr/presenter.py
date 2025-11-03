@@ -13,18 +13,14 @@ from hdr.model import HdrModel
 
 class HdrPresenter:
     def __init__(self, hdr_view: HdrView, hdr_model: HdrModel):
-        pass
+        self.hdr_view = hdr_view
+        self.hdr_model = hdr_model
 
-    def load_hdr(self) -> SpectralLibrary | BilFile | BipFile | BsqFile:
+    def load_hdr(self) -> np.ndarray:
         hdr_path = filedialog.askopenfilename(filetypes=[("HDR", "*.hdr")])
         hdr = spectral.open_image(hdr_path)
+        hdr = hdr.open_memmap()
         return hdr
-
-    def load_hdr_ndarray(
-        self, hdr: SpectralLibrary | BilFile | BipFile | BsqFile
-    ) -> np.ndarray:
-        hdr_ndarray = hdr.open_memmap()
-        return hdr_ndarray
 
     def save_hdr(self, hdr_ndarray):
         """
@@ -48,33 +44,7 @@ class HdrPresenter:
         # 使用spectral库的envi模块保存HDR/IMG文件对
         spectral.envi.save_image(file_path, hdr_ndarray, metadata=metadata, force=True)
 
-    def save_hdf5(self, hdr: SpectralLibrary | BilFile | BipFile | BsqFile) -> None:
-        height = hdr.shape[0]
-        width = hdr.shape[1]
-        num_channels = hdr.shape[2]
-        # 创建HDF5文件（MATLAB v7.3格式）
-        with h5py.File("multichannel_data.mat", "w") as file:
-            # 创建可扩展的三维数据集（高度 x 宽度 x 通道）
-            dset = file.create_dataset(
-                "data",
-                shape=(num_channels, width, height),
-                chunks=(1, width, height),  # 分块大小优化I/O
-                dtype=np.uint16,
-            )  # 每个通道一个块
-
-            # 循环处理每个通道
-            for i in range(0, num_channels):
-                print(f"正在处理通道 {i} ...")
-                # 显示进度百分比
-                print("当前进度：", round(i / num_channels * 100, 2), "%")
-                # 数据
-                batch_data = hdr.read_band(i)
-                # 使用内存映射写入当前通道
-                dset[i, :, :] = batch_data.T
-                del batch_data
-                print(f"通道 {i} 已保存")
-
-    def save_hdf5_p(self, hdr: np.ndarray) -> None:
+    def save_hdf5(self, hdr: np.ndarray) -> None:
         height = hdr.shape[0]
         width = hdr.shape[1]
         num_channels = hdr.shape[2]
@@ -83,37 +53,41 @@ class HdrPresenter:
             dset = file.create_dataset(
                 "data",
                 shape=(height, width, num_channels),
-                chunks= (height, width, 3),
+                chunks=(height, width, 3),
                 dtype=hdr.dtype,
             )  # 每个通道一个块
-            for i in range(0, num_channels, 10):
-                print(f"正在处理通道 {i} ，当前进度：", round(i / num_channels * 100, 2), "%")
-                end = min(i + 10, num_channels)
+            for i in range(0, num_channels, 9):
+                print(
+                    f"正在处理通道 {i} ，当前进度：",
+                    round(i / num_channels * 100, 2),
+                    "%",
+                )
+                end = min(i + 9, num_channels)
                 data = hdr[:, :, i:end]
-                dset[:, :, i :end] = data
+                dset[:, :, i:end] = data
+                del data
+            print("保存完成")
 
-    def save_hdf5_resize(
-        self, hdr: SpectralLibrary | BilFile | BipFile | BsqFile, x1, y1, x2, y2
-    ) -> None:
+    def save_hdf5_resize(self, hdr: np.ndarray, x1, y1, x2, y2) -> None:
         num_channels = hdr.shape[2]
-        # 创建HDF5文件（MATLAB v7.3格式）
-        with h5py.File("multichannel_data.mat", "w") as file:
-            # 创建可扩展的三维数据集（高度 x 宽度 x 通道）
+        with h5py.File("multichannel_data.hdf", "w") as file:
             dset = file.create_dataset(
                 "data",
-                shape=(num_channels, x2 - x1, y2 - y1),
-                chunks=(1, x2 - x1, y2 - y1),  # 分块大小优化I/O
-                dtype=np.uint16,
+                shape=(x2 - x1, y2 - y1, num_channels),
+                chunks=(x2 - x1, y2 - y1, 3),
+                dtype=hdr.dtype,
             )  # 每个通道一个块
-            for i in range(0, num_channels):
-                print(f"正在处理通道 {i} ...")
-                print("当前进度：", round(i / num_channels * 100, 2), "%")
-                # 只读取指定区域
-                batch_data = hdr.read_band(i)[y1:y2, x1:x2]
-                # 使用内存映射写入当前通道
-                dset[i, :, :] = batch_data.T  # 直接写入新通道
-                del batch_data
-                print(f"通道 {i} 已保存")
+            for i in range(0, num_channels, 9):
+                print(
+                    f"正在处理通道 {i} ，当前进度：",
+                    round(i / num_channels * 100, 2),
+                    "%",
+                )
+                end = min(i + 9, num_channels)
+                data = hdr[x1:x2, y1:y2, i:end]
+                dset[:, :, i:end] = data
+                del data
+            print("保存完成")
 
 
 if __name__ == "__main__":
