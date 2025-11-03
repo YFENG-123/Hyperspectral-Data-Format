@@ -230,7 +230,7 @@ class Presenters:
     def hdr_convert_to_mat(self):
         hdr = self.models.hdr.get_hdr()
         hdr_ndarray = self.hdr.load_hdr_ndarray(hdr)
-        self.mat.save_mat(hdr_ndarray)
+        self.hdr.save_hdf5_p(hdr_ndarray)
 
     def hdr_convert_to_mat_resize(self):
         hdr = self.models.hdr.get_hdr()

@@ -19,7 +19,7 @@ class MatPresenter:
         mat_dict = sio.loadmat(mat_path)
         return mat_dict, mat_path
 
-    def save_mat(self, mat_dict):
+    def save_mat(self, ndarray):
         fold_path = filedialog.asksaveasfilename(
             filetypes=[("MATLAB", "*.mat")],
             defaultextension=".mat",
@@ -27,7 +27,7 @@ class MatPresenter:
         )
         if not fold_path:
             return None
-        sio.savemat(fold_path, {"mat_ndarray": mat_dict})
+        sio.savemat(fold_path, {"mat_ndarray": ndarray})
 
 
 if __name__ == "__main__":
