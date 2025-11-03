@@ -1,6 +1,5 @@
 import tkinter as tk
 import scipy.io as sio
-import numpy as np
 
 from tkinter import filedialog
 
@@ -10,7 +9,8 @@ from mat.model import MatModel
 
 class MatPresenter:
     def __init__(self, mat_view: MatView, mat_model: MatModel):
-        pass
+        self.view = mat_view
+        self.model = mat_model
 
     def load_mat(self) -> tuple[dict, str]:
         mat_path = filedialog.askopenfilename(filetypes=[("MATLAB", "*.mat")])

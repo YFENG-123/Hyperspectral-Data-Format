@@ -2,9 +2,7 @@ import h5py
 import numpy as np
 
 import spectral
-from spectral.io.envi import SpectralLibrary, BilFile, BipFile, BsqFile
 
-import tkinter as tk
 from tkinter import filedialog
 
 from hdr.view import HdrView
@@ -12,9 +10,9 @@ from hdr.model import HdrModel
 
 
 class HdrPresenter:
-    def __init__(self, hdr_view: HdrView, hdr_model: HdrModel):
-        self.hdr_view = hdr_view
-        self.hdr_model = hdr_model
+    def __init__(self, view: HdrView, model: HdrModel):
+        self.view = view
+        self.model = model
 
     def load_hdr(self) -> np.ndarray:
         hdr_path = filedialog.askopenfilename(filetypes=[("HDR", "*.hdr")])

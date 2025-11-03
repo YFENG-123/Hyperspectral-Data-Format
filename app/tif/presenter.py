@@ -9,7 +9,8 @@ from .model import TifModel
 
 class TifPresenter:
     def __init__(self, tif_view: TifView, tif_model: TifModel):
-        pass
+        self.view = tif_view
+        self.model = tif_model
 
     def load_tif(self) -> tuple[np.ndarray, str]:
         tif_path = filedialog.askopenfilename()
