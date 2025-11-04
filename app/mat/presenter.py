@@ -27,6 +27,17 @@ class MatPresenter:
         if not fold_path:
             return None
         sio.savemat(fold_path, {"mat_ndarray": ndarray})
+    
+    def save_mat_resize(self, ndarray: np.ndarray, x1, y1, x2, y2):
+        fold_path = filedialog.asksaveasfilename(
+            filetypes=[("MATLAB", "*.mat")],
+            defaultextension=".mat",
+            initialfile="save.mat",
+        )
+        if not fold_path:
+            return None
+        ndarray = ndarray[y1:y2, x1:x2]
+        sio.savemat(fold_path, {"mat_ndarray": ndarray})
 
 
 if __name__ == "__main__":

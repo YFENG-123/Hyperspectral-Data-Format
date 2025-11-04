@@ -71,8 +71,8 @@ class HdrPresenter:
         with h5py.File("multichannel_data.hdf", "w") as file:
             dset = file.create_dataset(
                 "data",
-                shape=(x2 - x1, y2 - y1, num_channels),
-                chunks=(x2 - x1, y2 - y1, 3),
+                shape=(num_channels, y2 - y1, x2 - x1),
+                chunks=(3, y2 - y1, x2 - x1),
                 dtype=hdr.dtype,
             )  # 每个通道一个块
             for i in range(0, num_channels, 9):
@@ -82,8 +82,8 @@ class HdrPresenter:
                     "%",
                 )
                 end = min(i + 9, num_channels)
-                data = hdr[x1:x2, y1:y2, i:end]
-                dset[:, :, i:end] = data
+                data = np.transpose(hdr[x1:x2, y1:y2, i:end], (2, 0, 1))
+                dset[i:end, :, :] = data
                 del data
             print("保存完成")
 
