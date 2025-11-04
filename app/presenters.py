@@ -1,7 +1,3 @@
-import spectral
-import numpy as np
-from scipy.io import savemat
-
 from views import Views
 from models import Models
 
@@ -9,9 +5,6 @@ from jsonp.presenter import JsonPresenter
 from mat.presenter import MatPresenter
 from tif.presenter import TifPresenter
 from hdr.presenter import HdrPresenter
-
-
-from hdr.model import HdrModel
 
 
 class Presenters:
@@ -32,10 +25,9 @@ class Presenters:
         views.bind_json_delete_label(self.json_delete_label)
         views.bind_json_combine(self.json_combine)
         views.bind_json_open(self.json_open)
-        views.bind_json_count(self.json_count_label)
-        views.bind_json_id(self.json_generate_id)
         views.bind_json_convert_to_tif(self.json_convert_to_tif)
         views.bind_json_convert_to_mat(self.json_convert_to_mat)
+        views.bind_json_convert_to_mat_resize(self.json_convert_to_mat_resize)
 
         ## tif
         views.bind_tif_open(self.tif_open)
@@ -79,13 +71,12 @@ class Presenters:
         id_list = self.models.json.get_id_list()
         self.views.set_id_label(str(id_list))
 
-
     def json_combine(self):  # 数据量大，暂时不持久化
         json_path_list = self.json.get_json_path_list()
         self.models.json.set_json_path_list(json_path_list)
         json_dict_list = self.json.load_json_list(json_path_list)
         json_dict = self.json.combine_json(json_dict_list)
-        self.json.save_json(json_dict)
+        self.json.seve_json_with_name(json_dict, "combined.json")
 
     def json_count_label(self):
         # 统计标签，并保存
@@ -111,17 +102,16 @@ class Presenters:
         """
         @chutaiyang
         标签替换功能：调用下级接口实现用户交互界面
-        
+
         Returns:
             None: 无返回值，具体替换结果由下级接口通过弹窗显示
         """
         # 获取当前JSON数据
         json_dict = self.models.json.get_json_dict()
-        
+
         # 调用下级接口处理标签替换
         # 下级接口负责所有业务逻辑处理，包括用户交互、数据验证和结果反馈
         self.json.replace_label_with_ui(json_dict)
-
 
     def json_delete_label(self):
         """
@@ -154,12 +144,12 @@ class Presenters:
         """
         @chutaiyang
         JSON转MAT功能：将JSON标注数据转换为MAT格式文件
-        
+
         实现方式：
         1. 从models获取JSON数据和ID列表
         2. 调用下级presenter的convert_to_mat接口转换为MAT格式数据
         3. 调用mat presenter的save_mat接口保存为MAT文件
-        
+
         Returns:
             None: 无返回值，具体保存结果由下级接口处理
         """
@@ -172,6 +162,15 @@ class Presenters:
 
         # 保存为MAT文件
         self.mat.save_mat(mat_data)
+
+    def json_convert_to_mat_resize(self):
+        """
+        @YFENG-123
+        """
+        json_dict = self.models.json.get_json_dict()
+        id_list = self.models.json.get_id_list()
+        json_ndarray = self.json.convert_to_ndarray_gray(json_dict, id_list, -1)
+        self.mat.save_mat_resize(json_ndarray, 500, 500, 1000, 1000)
 
     # Tif
     def tif_open(self):

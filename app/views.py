@@ -31,26 +31,31 @@ class Views(tk.Tk):
         self.menu.add_cascade(label="TIF", menu=self.tif_menu)
         self.menu.add_cascade(label="HDR", menu=self.hdr_menu)
 
+        ## Json
         self.json_menu.add_command(label="Open")
         self.json_menu.add_command(label="Replace_label")
         self.json_menu.add_command(label="Delete_label")
         self.json_menu.add_command(label="Combine")
-
         self.json_menu.add_command(label="Convert_to_tif")
         self.json_menu.add_command(label="Convert_to_mat")
+        self.json_menu.add_command(label="Convert_to_mat_resize")
         self.json_menu.add_command(label="Remove_overlap")
 
+        ## Mat
         self.mat_menu.add_command(label="Open")
         self.mat_menu.add_command(label="Save_mat")
 
+        ## Tif
         self.tif_menu.add_command(label="Open")
         self.tif_menu.add_command(label="Save_tif")
         self.tif_menu.add_command(label="Draw_label")
 
+        ## Hdr
         self.hdr_menu.add_command(label="Open")
         self.hdr_menu.add_command(label="Convert_to_mat")
         self.hdr_menu.add_command(label="Convert_to_mat_resize")
 
+        # label
         self.label_json = tk.Label(self, text="Json:")
         self.label_json.grid(row=0, column=0,padx=15, pady=5)
         self.label_count = tk.Label(self, text="Count: ")
@@ -86,6 +91,9 @@ class Views(tk.Tk):
 
     def bind_json_convert_to_mat(self, command: callable):
         self.json_menu.entryconfig("Convert_to_mat", command=command)
+    
+    def bind_json_convert_to_mat_resize(self, command: callable):
+        self.json_menu.entryconfig("Convert_to_mat_resize", command=command)
 
     # Tif
     def bind_tif_open(self, command: callable):
