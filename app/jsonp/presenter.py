@@ -83,6 +83,29 @@ class JsonPresenter:
             value_list[idx] = 0  # 将最大值索引对应值置零
         return id_list
 
+    def get_validated_label_input(self, prompt: str, title: str = "标签输入") -> str:
+        """
+        @chutaiyang
+        获取并验证标签输入：封装标签输入和校验逻辑
+        
+        Args:
+            prompt (str): 输入提示信息
+            title (str, optional): 对话框标题，默认为"标签输入"
+            
+        Returns:
+            str: 验证通过的标签字符串，如果用户取消或输入无效则返回None
+        """
+        label = simpledialog.askstring(title, prompt)
+        if label is None:  # 用户点击取消
+            return None
+        
+        label = label.strip()
+        if not label:  # 输入为空
+            messagebox.showerror("输入错误", "标签不能为空！")
+            return None
+            
+        return label
+
     def replace_label_with_ui(self, json_dict: dict = None) -> None:
         """
         @chutaiyang
@@ -97,20 +120,20 @@ class JsonPresenter:
         # 检查是否有加载的JSON数据
         if json_dict is None:
             # 如果没有数据，先加载JSON文件
-            json_dict, _ = self.load_json()
-            if json_dict is None:
-                return  # 用户取消了文件选择
+            json_path = filedialog.askopenfilename()
+            if not json_path:  # 用户取消了文件选择
+                return
+            with open(json_path, "r", encoding="utf-8") as file:
+                json_dict = json.load(file)
         
-        # 获取原始标签输入
-        original_label = simpledialog.askstring("标签替换", "请输入要替换的原始标签名称:")
-        original_label = self._validate_label_input(original_label, "原始")
-        if original_label is None:  # 用户点击取消或输入为空
+        # 使用封装的接口获取原始标签输入
+        original_label = self.get_validated_label_input("请输入要替换的原始标签名称:", "标签替换")
+        if original_label is None:  # 用户取消或输入无效
             return
             
-        # 获取新标签输入
-        new_label = simpledialog.askstring("标签替换", f"请输入替换'{original_label}'的新标签名称:")
-        new_label = self._validate_label_input(new_label, "新")
-        if new_label is None:  # 用户点击取消或输入为空
+        # 使用封装的接口获取新标签输入
+        new_label = self.get_validated_label_input(f"请输入替换'{original_label}'的新标签名称:", "标签替换")
+        if new_label is None:  # 用户取消或输入无效
             return
         
         # 检查标签是否相同
@@ -119,12 +142,28 @@ class JsonPresenter:
             return
         
         # 检查原始标签是否存在
-        if not self._check_label_exists(json_dict, original_label):
+        label_exists = False
+        if "shapes" in json_dict:
+            for shape in json_dict["shapes"]:
+                if shape.get("label") == original_label:
+                    label_exists = True
+                    break
+        
+        if not label_exists:
             messagebox.showerror("标签不存在", f"标签'{original_label}'在数据中不存在")
             return
         
         # 执行标签替换并统计替换数量
-        modified_json, replaced_count = self.replace_label(json_dict, original_label, new_label)
+        modified_json = copy.deepcopy(json_dict)
+        replaced_count = 0
+        
+        if "shapes" in modified_json:
+            for shape in modified_json["shapes"]:
+                # 检查当前形状的标签是否与原始标签匹配
+                if shape.get("label") == original_label:
+                    # 替换标签名称
+                    shape["label"] = new_label
+                    replaced_count += 1
         
         # 显示替换结果
         if replaced_count > 0:
@@ -133,7 +172,14 @@ class JsonPresenter:
             # 保存修改后的文件
             save_choice = messagebox.askyesno("保存文件", "是否保存修改后的文件？")
             if save_choice:
-                self.save_json(modified_json)
+                fold_path = filedialog.asksaveasfilename(
+                    filetypes=[("JSON", "*.json")],
+                    defaultextension=".json",
+                    initialfile="modified.json",
+                )
+                if fold_path:
+                    with open(fold_path, "w", encoding="utf-8") as file:
+                        json.dump(modified_json, file, indent=4, ensure_ascii=False)
             
             # 更新模型数据（如果存在模型）
             if hasattr(self, 'model') and hasattr(self.model, 'set_json_dict'):
@@ -141,75 +187,7 @@ class JsonPresenter:
         else:
             messagebox.showwarning("替换失败", "未找到匹配的标签进行替换")
     
-    def replace_label(
-        self, json_dict: dict, original_label: str, new_label: str
-    ) -> Tuple[dict, int]:
-        """
-        @chutaiyang
-        标签替换功能：遍历JSON字典中的标注数据，将指定的原始标签替换为新的标签
-        
-        Args:
-            json_dict (dict): 原始JSON数据字典
-            original_label (str): 要替换的原始标签名称
-            new_label (str): 替换后的新标签名称
-            
-        Returns:
-            Tuple[dict, int]: 修改后的JSON数据字典和替换数量
-        """
-        # 创建JSON字典的深拷贝，避免修改原始数据
-        modified_json = copy.deepcopy(json_dict)
-        
-        # 调用可复用的标签替换接口并获取替换数量
-        replaced_count = self._replace_labels_in_shapes(modified_json, original_label, new_label)
-        
-        return modified_json, replaced_count
-    
-    def _check_label_exists(self, json_dict: dict, label: str) -> bool:
-        """
-        检查标签是否存在于JSON数据中
-        """
-        if "shapes" in json_dict:
-            for shape in json_dict["shapes"]:
-                if shape.get("label") == label:
-                    return True
-        return False
-    
-    def _replace_labels_in_shapes(self, json_dict: dict, original_label: str, new_label: str) -> int:
-        """
-        可复用的标签替换接口：在shapes数组中替换指定标签，返回替换数量
-        """
-        replaced_count = 0
-        if "shapes" in json_dict:
-            for shape in json_dict["shapes"]:
-                # 检查当前形状的标签是否与原始标签匹配
-                if shape.get("label") == original_label:
-                    # 替换标签名称
-                    shape["label"] = new_label
-                    replaced_count += 1
-        return replaced_count
 
-    def _validate_label_input(self, label: str, label_type: str) -> str:
-        """
-        @chutaiyang
-        可复用的标签输入验证接口：验证标签输入并返回处理后的标签
-        
-        Args:
-            label (str): 用户输入的标签
-            label_type (str): 标签类型描述（如"原始"、"新"）
-            
-        Returns:
-            str: 验证通过的处理后标签，如果验证失败返回None
-        """
-        if label is None:  # 用户点击取消
-            return None
-        
-        # 去除首尾空格
-        label = label.strip()
-        if not label:
-            messagebox.showerror("输入错误", f"{label_type}标签不能为空！")
-            return None
-            
-        return label
 
     
     def delete_label(self, json_dict: dict, label: str) -> dict:
