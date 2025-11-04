@@ -1,8 +1,7 @@
 import tkinter as tk
 import scipy.io as sio
-
+import numpy as np
 from tkinter import filedialog
-
 from mat.view import MatView
 from mat.model import MatModel
 
@@ -19,7 +18,7 @@ class MatPresenter:
         mat_dict = sio.loadmat(mat_path)
         return mat_dict, mat_path
 
-    def save_mat(self, ndarray):
+    def save_mat(self, ndarray: np.ndarray):
         fold_path = filedialog.asksaveasfilename(
             filetypes=[("MATLAB", "*.mat")],
             defaultextension=".mat",

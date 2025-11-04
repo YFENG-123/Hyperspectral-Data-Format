@@ -1,5 +1,3 @@
-import numpy as np
-
 
 class MatModel:
     mat_path: str
@@ -9,7 +7,6 @@ class MatModel:
         self.root = root
         self.mat_path = ""
         self.mat_dict = None
-
     def set_mat_path(self, mat_path: str) -> None:
         self.mat_path = mat_path
 

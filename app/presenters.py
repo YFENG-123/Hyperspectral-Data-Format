@@ -32,8 +32,9 @@ class Presenters:
         views.bind_json_delete_label(self.json_delete_label)
         views.bind_json_combine(self.json_combine)
         views.bind_json_open(self.json_open)
+        views.bind_json_count(self.json_count_label)
+        views.bind_json_id(self.json_generate_id)
         views.bind_json_convert_to_tif(self.json_convert_to_tif)
-        views.bind_json_remove_overlap(self.json_remove_overlap)
         views.bind_json_convert_to_mat(self.json_convert_to_mat)
 
         ## tif
@@ -86,56 +87,45 @@ class Presenters:
         json_dict = self.json.combine_json(json_dict_list)
         self.json.save_json(json_dict)
 
+    def json_count_label(self):
+        # 统计标签，并保存
+        json_dict = self.models.json.get_json_dict()
+        count_dict = self.json.count_label(json_dict)
+        self.models.json.set_count_dict(count_dict)
+
+        # 显示标签
+        count_dict = self.models.json.get_count_dict()
+        self.views.set_count_label(str(count_dict))
+
+    def json_generate_id(self):
+        # 生成id，并保存
+        count_dict = self.models.json.get_count_dict()
+        id_list = self.json.generate_id(count_dict)
+        self.models.json.set_id_list(id_list)
+
+        # 显示id
+        id_list = self.models.json.get_id_list()
+        self.views.set_id_label(str(id_list))
+
     def json_replace_label(self):
         """
         @chutaiyang
-        标签替换功能：用户交互界面，输入原始标签和新标签进行替换
+        标签替换功能：调用下级接口实现用户交互界面
+        
+        Returns:
+            None: 无返回值，具体替换结果由下级接口通过弹窗显示
         """
-        # 检查是否有加载的JSON数据
+        # 获取当前JSON数据
         json_dict = self.models.json.get_json_dict()
-        if json_dict is None:
-            # 如果没有数据，先加载JSON文件
-            self.json_open()
-            json_dict = self.models.json.get_json_dict()
-            if json_dict is None:
-                return  # 用户取消了文件选择
+        
+        # 调用下级接口处理标签替换
+        # 下级接口负责所有业务逻辑处理，包括用户交互、数据验证和结果反馈
+        self.json.replace_label_with_ui(json_dict)
 
-        # 创建输入对话框
-        import tkinter as tk
-        from tkinter import simpledialog
-
-        # 获取原始标签输入
-        original_label = simpledialog.askstring(
-            "标签替换", "请输入要替换的原始标签名称:"
-        )
-        if original_label is None:  # 用户点击取消
-            return
-
-        # 获取新标签输入
-        new_label = simpledialog.askstring(
-            "标签替换", f"请输入替换'{original_label}'的新标签名称:"
-        )
-        if new_label is None:  # 用户点击取消
-            return
-
-        # 执行标签替换
-        modified_json = self.json.replace_label(json_dict, original_label, new_label)
-
-        # 更新模型数据
-        self.models.json.set_json_dict(modified_json)
-
-        # 显示替换结果
-        self.views.set_json_label(f"标签已替换: {original_label} -> {new_label}")
-
-        # 保存修改后的文件
-        save_choice = tk.messagebox.askyesno("保存文件", "是否保存修改后的文件？")
-        if save_choice:
-            self.json.save_json(modified_json)
-        pass
 
     def json_delete_label(self):
         """
-        @chutaiyang
+        @YFENG-123
         """
         # 加载 json
         json_dict = self.models.json.get_json_dict()
@@ -163,14 +153,25 @@ class Presenters:
     def json_convert_to_mat(self):
         """
         @chutaiyang
+        JSON转MAT功能：将JSON标注数据转换为MAT格式文件
+        
+        实现方式：
+        1. 从models获取JSON数据和ID列表
+        2. 调用下级presenter的convert_to_mat接口转换为MAT格式数据
+        3. 调用mat presenter的save_mat接口保存为MAT文件
+        
+        Returns:
+            None: 无返回值，具体保存结果由下级接口处理
         """
-        pass
-
-    def json_remove_overlap(self):
+        # 加载 json 和 id
         json_dict = self.models.json.get_json_dict()
-        json_dict_remove, json_dict_overlap = self.json.remove_overlap(json_dict)
-        self.json.seve_json_with_name(json_dict_remove, "remove")
-        self.json.seve_json_with_name(json_dict_overlap, "overlap")
+        id_list = self.models.json.get_id_list()
+
+        # 调用可复用的convert_to_mat接口转换为MAT格式数据
+        mat_data = self.json.convert_to_mat(json_dict, id_list, 5)
+
+        # 保存为MAT文件
+        self.mat.save_mat(mat_data)
 
     # Tif
     def tif_open(self):
