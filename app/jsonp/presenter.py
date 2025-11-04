@@ -106,6 +106,26 @@ class JsonPresenter:
             
         return label
 
+    def _get_replacement_labels(self) -> tuple:
+        """
+        @chutaiyang
+        获取替换标签对：封装原始标签和新标签的输入逻辑
+        
+        Returns:
+            tuple: (original_label, new_label) 或 None（用户取消时）
+        """
+        # 获取原始标签
+        original_label = self.get_validated_label_input("请输入要替换的原始标签名称:", "标签替换")
+        if original_label is None:
+            return None
+            
+        # 获取新标签
+        new_label = self.get_validated_label_input(f"请输入替换'{original_label}'的新标签名称:", "标签替换")
+        if new_label is None:
+            return None
+            
+        return (original_label, new_label)
+
     def replace_label_with_ui(self, json_dict: dict = None) -> None:
         """
         @chutaiyang
@@ -123,18 +143,18 @@ class JsonPresenter:
             json_path = filedialog.askopenfilename()
             if not json_path:  # 用户取消了文件选择
                 return
-            with open(json_path, "r", encoding="utf-8") as file:
-                json_dict = json.load(file)
+            try:
+                with open(json_path, "r", encoding="utf-8") as file:
+                    json_dict = json.load(file)
+            except Exception as e:
+                messagebox.showerror("文件错误", f"加载JSON文件失败: {str(e)}")
+                return
         
-        # 使用封装的接口获取原始标签输入
-        original_label = self.get_validated_label_input("请输入要替换的原始标签名称:", "标签替换")
-        if original_label is None:  # 用户取消或输入无效
+        # 获取标签输入
+        labels = self._get_replacement_labels()
+        if labels is None:  # 用户取消或输入无效
             return
-            
-        # 使用封装的接口获取新标签输入
-        new_label = self.get_validated_label_input(f"请输入替换'{original_label}'的新标签名称:", "标签替换")
-        if new_label is None:  # 用户取消或输入无效
-            return
+        original_label, new_label = labels
         
         # 检查标签是否相同
         if original_label == new_label:
