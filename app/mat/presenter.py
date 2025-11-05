@@ -11,33 +11,16 @@ class MatPresenter:
         self.view = mat_view
         self.model = mat_model
 
-    def load_mat(self) -> tuple[dict, str]:
-        mat_path = filedialog.askopenfilename(filetypes=[("MATLAB", "*.mat")])
-        if not mat_path:
-            return None, ""
+    def load_mat(self,mat_path:str) -> tuple[dict, str]:
         mat_dict = sio.loadmat(mat_path)
-        return mat_dict, mat_path
+        return mat_dict
 
-    def save_mat(self, ndarray: np.ndarray):
-        fold_path = filedialog.asksaveasfilename(
-            filetypes=[("MATLAB", "*.mat")],
-            defaultextension=".mat",
-            initialfile="save.mat",
-        )
-        if not fold_path:
-            return None
-        sio.savemat(fold_path, {"mat_ndarray": ndarray})
+    def save_mat(self, ndarray: np.ndarray,save_path: str):
+        sio.savemat(save_path, {"mat_ndarray": ndarray})
     
-    def save_mat_resize(self, ndarray: np.ndarray, x1, y1, x2, y2):
-        fold_path = filedialog.asksaveasfilename(
-            filetypes=[("MATLAB", "*.mat")],
-            defaultextension=".mat",
-            initialfile="save.mat",
-        )
-        if not fold_path:
-            return None
+    def save_mat_resize(self, ndarray: np.ndarray, x1, y1, x2, y2,save_path):
         ndarray = ndarray[y1:y2, x1:x2]
-        sio.savemat(fold_path, {"mat_ndarray": ndarray})
+        sio.savemat(save_path, {"mat_ndarray": ndarray})
 
 
 if __name__ == "__main__":

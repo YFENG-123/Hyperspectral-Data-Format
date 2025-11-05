@@ -12,20 +12,13 @@ class TifPresenter:
         self.view = tif_view
         self.model = tif_model
 
-    def load_tif(self) -> tuple[np.ndarray, str]:
-        tif_path = filedialog.askopenfilename()
+    def load_tif(self, tif_path: str) -> tuple[np.ndarray, str]:
         tif_matlike = cv2.imread(tif_path)
         tif_ndarray = np.array(tif_matlike)
-        return tif_ndarray, tif_path
+        return tif_ndarray
 
-    def save_tif(self, tif_ndarray) -> None:
-        fold_path = filedialog.asksaveasfilename(
-            filetypes=[("TIFF", "*.tif"), ("TIFF", "*.tiff")],
-            defaultextension=".tif",
-            initialfile="output.tif",
-        )
-        if fold_path:
-            cv2.imwrite(fold_path, tif_ndarray)
+    def save_tif(self, tif_ndarray, save_path) -> None:
+        cv2.imwrite(save_path, tif_ndarray)
         return None
 
     def draw_label(

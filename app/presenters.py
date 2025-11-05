@@ -45,58 +45,55 @@ class Presenters:
 
     # Json
     def json_open(self):
-        # 加载json，并保存
-        json_dict, json_path = self.json.load_json()
-        self.models.json.set_json_dict(json_dict)
-        self.models.json.set_json_path(json_path)
+        try:
+            # 获取json路径
+            json_path = self.views.ask_open_path("JSON", ".json")
+            self.models.json.set_json_path(json_path)
 
-        # 显示json路径
-        json_path = self.models.json.get_json_path()
-        self.views.set_json_label(json_path)
+            # 显示json路径
+            json_path = self.models.json.get_json_path()
+            self.views.set_json_label(json_path)
 
-        # 统计标签
-        json_dict = self.models.json.get_json_dict()
-        count_dict = self.json.count_label(json_dict)
-        self.models.json.set_count_dict(count_dict)
+            # 加载json
+            json_dict = self.json.load_json(json_path)
+            self.models.json.set_json_dict(json_dict)
 
-        # 显示标签
-        count_dict = self.models.json.get_count_dict()
-        self.views.set_count_label(str(count_dict))
+            # 统计标签
+            json_dict = self.models.json.get_json_dict()
+            count_dict = self.json.count_label(json_dict)
+            self.models.json.set_count_dict(count_dict)
 
-        # 生成id
-        id_list = self.json.generate_id(count_dict)
-        self.models.json.set_id_list(id_list)
+            # 显示标签
+            count_dict = self.models.json.get_count_dict()
+            self.views.set_count_label(str(count_dict))
 
-        # 显示id
-        id_list = self.models.json.get_id_list()
-        self.views.set_id_label(str(id_list))
+            # 生成id
+            id_list = self.json.generate_id(count_dict)
+            self.models.json.set_id_list(id_list)
+
+            # 显示id
+            id_list = self.models.json.get_id_list()
+            self.views.set_id_label(str(id_list))
+        except Exception as e:
+            self.views.show_error(str(e))
 
     def json_combine(self):  # 数据量大，暂时不持久化
-        json_path_list = self.json.get_json_path_list()
-        self.models.json.set_json_path_list(json_path_list)
-        json_dict_list = self.json.load_json_list(json_path_list)
-        json_dict = self.json.combine_json(json_dict_list)
-        self.json.seve_json_with_name(json_dict, "combined.json")
+        try:
+            # 获取json路径列表
+            json_path_list = self.views.ask_open_path("JSON", ".json")
+            self.models.json.set_json_path_list(json_path_list)
 
-    def json_count_label(self):
-        # 统计标签，并保存
-        json_dict = self.models.json.get_json_dict()
-        count_dict = self.json.count_label(json_dict)
-        self.models.json.set_count_dict(count_dict)
+            # 加载json字典列表
+            json_dict_list = self.json.load_json_list(json_path_list)
 
-        # 显示标签
-        count_dict = self.models.json.get_count_dict()
-        self.views.set_count_label(str(count_dict))
+            # 组合json
+            json_dict = self.json.combine_json(json_dict_list)
 
-    def json_generate_id(self):
-        # 生成id，并保存
-        count_dict = self.models.json.get_count_dict()
-        id_list = self.json.generate_id(count_dict)
-        self.models.json.set_id_list(id_list)
-
-        # 显示id
-        id_list = self.models.json.get_id_list()
-        self.views.set_id_label(str(id_list))
+            # 保存json
+            save_path = self.views.ask_save_path("JSON", ".json", "json_combine")
+            self.json.seve_json(json_dict, save_path)
+        except Exception as e:
+            self.views.show_error(str(e))
 
     def json_replace_label(self):
         """
@@ -116,29 +113,39 @@ class Presenters:
     def json_delete_label(self):
         """
         @YFENG-123
+        待添加校验
         """
-        # 加载 json
-        json_dict = self.models.json.get_json_dict()
+        try:
+            label = self.views.ask_label("标签删除", "请输入要删除的标签名称:")
+            # 加载 json
+            json_dict = self.models.json.get_json_dict()
 
-        # 删除标签
-        json_dict = self.json.delete_label(json_dict)  #####
+            # 删除标签
+            json_dict = self.json.delete_label(json_dict, label)
 
-        # 保存 json
-        self.json.seve_json_with_name(json_dict, "deleted")
+            # 保存 json
+            save_path = self.views.ask_save_path("JSON", ".json", "json_delete")
+            self.json.seve_json(save_path, "deleted")
+        except Exception as e:
+            self.views.show_error(str(e))
 
     def json_convert_to_tif(self):
         """
         @YFENG-123
         """
-        # 加载 json 和 id
-        json_dict = self.models.json.get_json_dict()
-        id_list = self.models.json.get_id_list()
+        try:
+            # 加载 json 和 id
+            json_dict = self.models.json.get_json_dict()
+            id_list = self.models.json.get_id_list()
 
-        # 转换成 ndarray
-        ndarray = self.json.convert_to_ndarray(json_dict, id_list, 5)
+            # 转换成 ndarray
+            ndarray = self.json.convert_to_ndarray_rgb(json_dict, id_list, 5)
 
-        # 保存 tif
-        self.tif.save_tif(ndarray)
+            # 保存 tif
+            save_path = self.views.ask_save_path("TIF", ".tif", "json_convert_to_tif")
+            self.tif.save_tif(ndarray, save_path)
+        except Exception as e:
+            self.views.show_error(str(e))
 
     def json_convert_to_mat(self):
         """
@@ -153,84 +160,131 @@ class Presenters:
         Returns:
             None: 无返回值，具体保存结果由下级接口处理
         """
-        # 加载 json 和 id
-        json_dict = self.models.json.get_json_dict()
-        id_list = self.models.json.get_id_list()
+        try:
+            # 加载 json 和 id
+            json_dict = self.models.json.get_json_dict()
+            id_list = self.models.json.get_id_list()
 
-        # 调用可复用的convert_to_mat接口转换为MAT格式数据
-        mat_data = self.json.convert_to_mat(json_dict, id_list, 5)
+            # 调用可复用的convert_to_mat接口转换为MAT格式数据
+            mat_data = self.json.convert_to_mat(json_dict, id_list, 5)
 
-        # 保存为MAT文件
-        self.mat.save_mat(mat_data)
+            # 保存为MAT文件
+            self.mat.save_mat(mat_data)
+        except Exception as e:
+            self.views.show_error(str(e))
 
     def json_convert_to_mat_resize(self):
         """
         @YFENG-123
         """
-        json_dict = self.models.json.get_json_dict()
-        id_list = self.models.json.get_id_list()
-        json_ndarray = self.json.convert_to_ndarray_gray(json_dict, id_list, -1)
-        self.mat.save_mat_resize(json_ndarray, 500, 500, 1000, 1000)
+        try:
+            json_dict = self.models.json.get_json_dict()
+            id_list = self.models.json.get_id_list()
+            json_ndarray = self.json.convert_to_ndarray_gray(json_dict, id_list, -1)
+
+            save_path = self.views.ask_save_path(
+                "MAT", ".mat", "json_convert_to_mat_resize"
+            )
+            self.mat.save_mat_resize(json_ndarray, 500, 500, 1000, 1000, save_path)
+        except Exception as e:
+            self.views.show_error(str(e))
 
     # Tif
     def tif_open(self):
-        tif_array, tif_path = self.tif.load_tif()
-        self.models.tif.set_tif_array(tif_array)
-        self.models.tif.set_tif_path(tif_path)
+        try:
+            tif_path = self.views.ask_open_path("TIF", ".tif")
+            self.models.tif.set_tif_path(tif_path)
 
-        tif_path = self.models.tif.get_tif_path()
-        self.views.set_tif_label(tif_path)
+            tif_array = self.tif.load_tif(tif_path)
+            self.models.tif.set_tif_array(tif_array)
+
+            tif_path = self.models.tif.get_tif_path()
+            self.views.set_tif_label(tif_path)
+        except Exception as e:
+            self.views.show_error(str(e))
 
     def tif_save(self):
-        tif_array = self.models.tif.get_tif_array()
-        if tif_array is None:
-            return None
-        self.tif.save_tif(tif_array)
-        return None
+        try:
+            save_path = self.views.ask_save_path("TIF", ".tif", "tif_save")
+            tif_array = self.models.tif.get_tif_array()
+
+            self.tif.save_tif(tif_array, save_path)
+
+        except Exception as e:
+            self.views.show_error(str(e))
 
     def tif_draw_label(self):
-        # 获取 json 和 id
-        json_dict = self.models.json.get_json_dict()
-        id_list = self.models.json.get_id_list()
+        try:
+            # 获取 json 和 id
+            json_dict = self.models.json.get_json_dict()
+            id_list = self.models.json.get_id_list()
 
-        # 获取 tif
-        tif_ndarray = self.models.tif.get_tif_array()
+            # 获取 tif
+            tif_ndarray = self.models.tif.get_tif_array()
 
-        # 绘制标签
-        tif_ndarray = self.tif.draw_label(tif_ndarray, json_dict, id_list, 5)
+            # 绘制标签
+            tif_ndarray = self.tif.draw_label(tif_ndarray, json_dict, id_list, 5)
 
-        # 保存 tif
-        self.tif.save_tif(tif_ndarray)
+            seve_path = self.views.ask_save_path("TIF", ".tif", "tif_draw_label")
+            # 保存 tif
+            self.tif.save_tif(tif_ndarray, seve_path)
+        except Exception as e:
+            self.views.show_error(str(e))
 
     # Mat
     def mat_open(self):
-        mat_dict, mat_path = self.mat.load_mat()
-        self.models.mat.set_mat_dict(mat_dict)
-        self.models.mat.set_mat_path(mat_path)
+        try:
+            mat_path = self.views.ask_open_path("MAT", ".mat")
+            mat_dict = self.mat.load_mat(mat_path)
+            self.models.mat.set_mat_dict(mat_dict)
+            self.models.mat.set_mat_path(mat_path)
 
-        mat_path = self.models.mat.get_mat_path()
-        self.view.set_mat_label(mat_path)
+            mat_path = self.models.mat.get_mat_path()
+            self.view.set_mat_label(mat_path)
+        except Exception as e:
+            self.views.show_error(str(e))
 
     def mat_save(self):
-        mat_dict = self.models.mat.get_mat_dict()
-        if mat_dict is None:
-            return None
-        self.mat.save_mat(mat_dict)
-        return None
+        try:
+            save_path = self.views.ask_save_path("MAT", ".mat", "mat_save")
+            mat_dict = self.models.mat.get_mat_dict()
+            self.mat.save_mat(mat_dict, save_path)
+        except Exception as e:
+            self.views.show_error(str(e))
 
     # Hdr
     def hdr_open(self):
-        hdr_ndarray = self.hdr.load_hdr()
-        self.models.hdr.set_hdr(hdr_ndarray)
+        try:
+            hdr_path = self.views.ask_open_path("HDR", ".hdr")
+            self.models.hdr.set_hdr_path(hdr_path)
+
+            hdr_path = self.models.hdr.get_hdr_path()
+            self.views.set_hdr_label(hdr_path)
+
+            hdr_ndarray = self.hdr.load_hdr(hdr_path)
+            self.models.hdr.set_hdr(hdr_ndarray)
+
+        except Exception as e:
+            self.views.show_error(str(e))
 
     def hdr_convert_to_mat(self):
-        hdr_ndarray = self.models.hdr.get_hdr()
-        self.hdr.save_hdf5(hdr_ndarray)
+        try:
+            hdr_ndarray = self.models.hdr.get_hdr()
+            save_path = self.views.ask_save_path("HDF5", ".hdf", "hdr_convert_to_mat")
+            self.hdr.save_hdf5(hdr_ndarray, save_path)
+        except Exception as e:
+            self.views.show_error(str(e))
 
     def hdr_convert_to_mat_resize(self):
-        hdr_ndarray = self.models.hdr.get_hdr()
-        x1 = 500
-        x2 = 1000
-        y1 = 500
-        y2 = 1000
-        self.hdr.save_hdf5_resize(hdr_ndarray, x1, y1, x2, y2)
+        try:
+            hdr_ndarray = self.models.hdr.get_hdr()
+            x1 = 500
+            x2 = 1000
+            y1 = 500
+            y2 = 1000
+            save_path = self.views.ask_save_path(
+                "HDF5", ".hdf", "hdr_convert_to_mat_resize"
+            )
+            self.hdr.save_hdf5_resize(hdr_ndarray, x1, y1, x2, y2, save_path)
+        except Exception as e:
+            self.views.show_error(str(e))

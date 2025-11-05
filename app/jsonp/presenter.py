@@ -6,10 +6,11 @@ import copy
 import tkinter as tk
 from typing import Tuple
 from tkinter import filedialog, simpledialog, messagebox
+from shapely.geometry import Polygon
 from jsonp.view import JsonView
 from jsonp.model import JsonModel
 from jsonp.schema import JsonSchema
-from shapely.geometry import Polygon
+from jsonp.exception import JsonDataError, FileTypeNotJsonError
 
 
 class JsonPresenter:
@@ -17,25 +18,37 @@ class JsonPresenter:
         self.view = view
         self.model = model
 
-    def load_json(self) -> tuple[dict, str]:
-        json_path = filedialog.askopenfilename()
-        with open(json_path, "r", encoding="utf-8") as file:
-            json_dict = json.load(file)
-        return json_dict, json_path
+    def load_json(self, json_path: str) -> tuple[dict, str]:
+        """
+        @YFENG-123
+        """
 
-    def get_json_path_list(self) -> list:
-        json_path_list = list(filedialog.askopenfilenames())
-        return json_path_list
+        with open(json_path, "r", encoding="utf-8") as file:
+            try:
+                json_dict = json.load(file)
+            except json.JSONDecodeError as e:
+                raise JsonDataError(json_path, str(e))
+
+        return json_dict
 
     def load_json_list(self, json_path_list) -> list:
+        """
+        @YFENG-123
+        """
         json_dict_list = []
         for file_path in json_path_list:
             with open(file_path, "r", encoding="utf-8") as file:
-                json_dict = json.load(file)
+                try:
+                    json_dict = json.load(file)
+                except json.JSONDecodeError as e:
+                    raise JsonDataError(file_path, str(e))
             json_dict_list.append(json_dict)
         return json_dict_list
 
     def combine_json(self, json_dict_list) -> dict:
+        """
+        @YFENG-123
+        """
         json_pack = JsonSchema()
         for json_dict in json_dict_list:
             if int("".join(json_dict["version"].split("."))) > int(
@@ -55,26 +68,29 @@ class JsonPresenter:
         # json_pack.description = json_dict_list[0]["description"]
         return vars(json_pack)
 
-    def seve_json_with_name(self, json_file_dict: dict, name: str) -> None:
-        fold_path = filedialog.asksaveasfilename(
-            filetypes=[("JSON", "*.json")],
-            defaultextension=".json",
-            initialfile=name,
-        )
-        with open(fold_path, "w", encoding="utf-8") as file:
+    def seve_json(self, json_file_dict: dict, file_path) -> None:
+        """
+        @YFENG-123
+        """
+        with open(file_path, "w", encoding="utf-8") as file:
             json.dump(json_file_dict, file, indent=4, ensure_ascii=False)
 
     def count_label(self, json_dict: dict) -> dict:
+        """
+        @YFENG-123
+        """
         count_dict = {}
         for shape in json_dict["shapes"]:
             if shape["label"] in count_dict:
                 count_dict[shape["label"]] += 1
             else:
                 count_dict[shape["label"]] = 1
-        print(count_dict)
         return count_dict
 
     def generate_id(self, count_dict: dict) -> list:
+        """
+        @YFENG-123
+        """
         key_list = list(count_dict.keys())
         value_list = list(count_dict.values())
         id_list = ["背景"]
@@ -185,6 +201,7 @@ class JsonPresenter:
 
     def _check_label_exists(self, json_dict: dict, label: str) -> bool:
         """
+        @chutaiyang
         检查标签是否存在于JSON数据中
         """
         if "shapes" in json_dict:
@@ -197,6 +214,7 @@ class JsonPresenter:
         self, json_dict: dict, original_label: str, new_label: str
     ) -> int:
         """
+        @chutaiyang
         可复用的标签替换接口：在shapes数组中替换指定标签，返回替换数量
         """
         replaced_count = 0
@@ -208,40 +226,35 @@ class JsonPresenter:
                     shape["label"] = new_label
         # return modified_json
 
-    def delete_label(self, json_dict: dict) -> dict:
+    def delete_label(self, json_dict: dict, label: str) -> dict:
         """
         @YFENG-123
         """
         # 获取新标签输入
-        label = simpledialog.askstring("标签删除", "请输入新标签名称:")
-        if label is None:  # 用户点击取消
-            return
         data = [shape for shape in json_dict["shapes"] if shape["label"] != label]
         json_dict["shapes"] = data
         return json_dict
 
-    def convert_to_ndarray(
-        self, json_dict: dict, id_list: list, thickness
+    def convert_to_ndarray_rgb(
+        self, json_dict: dict, id_list: list, thickness: int = -1
     ) -> np.ndarray:
         """
         @YFENG-123
         """
-        # 生成颜色列表（数量无限，不重复）
-        colors = np.random.randint(0, 256, size=(len(id_list), 3))
 
         # 获取图像尺寸
         image_height = json_dict["imageHeight"]
         image_width = json_dict["imageWidth"]
-        # 创建一个与图像大小相同的三维全一数组
-        image_array = np.ones((image_height, image_width, 3), dtype=np.uint8) * 255
-        print(image_array)
+        image_array = (
+            np.ones((image_height, image_width, 3), dtype=np.uint8) * 255
+        )  # 创建一个与图像大小相同的三维全一数组
+        # 生成颜色列表（数量无限，不重复）
+        colors = np.random.randint(0, 256, size=(len(id_list), 3))
 
         # 绘制每个形状
         for shape in json_dict["shapes"]:
             points = np.array(shape["points"], dtype=np.int32)
-            print(points)
-            color = tuple(colors[id_list.index(shape["label"])])
-            print(color)
+            color = colors[id_list.index(shape["label"])]
             color = (int(color[0]), int(color[1]), int(color[2]))
             if thickness == -1:  # 填充多边形
                 cv2.fillPoly(image_array, [points], color)
@@ -249,8 +262,10 @@ class JsonPresenter:
                 cv2.polylines(image_array, [points], True, color, thickness)
 
         return image_array
-    
-    def convert_to_ndarray_gray(self, json_dict: dict, id_list: list, thickness: int = 5) -> np.ndarray:
+
+    def convert_to_ndarray_gray(
+        self, json_dict: dict, id_list: list, thickness: int = -1
+    ) -> np.ndarray:
         """
         @YFENG-123
         """
@@ -261,15 +276,19 @@ class JsonPresenter:
         # 绘制每个形状
         for shape in json_dict["shapes"]:
             points = np.array(shape["points"], dtype=np.int32)
-            print(points)
-
+            id = id_list.index(shape["label"])
             if thickness == -1:  # 填充多边形
                 cv2.fillPoly(image_array, [points], id_list.index(shape["label"]))
             else:  # 绘制多边形轮廓
-                cv2.polylines(image_array, [points], True, id_list.index(shape["label"]), thickness)
+                cv2.polylines(
+                    image_array,
+                    [points],
+                    True,
+                    id,
+                    thickness,
+                )
 
         return image_array
-
 
     def convert_to_mat(
         self, json_dict: dict, id_list: list, thickness: int = 5

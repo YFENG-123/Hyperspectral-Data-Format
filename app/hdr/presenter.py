@@ -14,8 +14,7 @@ class HdrPresenter:
         self.view = view
         self.model = model
 
-    def load_hdr(self) -> np.ndarray:
-        hdr_path = filedialog.askopenfilename(filetypes=[("HDR", "*.hdr")])
+    def load_hdr(self,hdr_path:str) -> np.ndarray:
         hdr = spectral.open_image(hdr_path)
         hdr = hdr.open_memmap()
         return hdr
@@ -42,12 +41,12 @@ class HdrPresenter:
         # 使用spectral库的envi模块保存HDR/IMG文件对
         spectral.envi.save_image(file_path, hdr_ndarray, metadata=metadata, force=True)
 
-    def save_hdf5(self, hdr: np.ndarray) -> None:
+    def save_hdf5(self, hdr: np.ndarray,save_path:str) -> None:
         height = hdr.shape[0]
         width = hdr.shape[1]
         num_channels = hdr.shape[2]
         # 创建HDF5文件（MATLAB v7.3格式）
-        with h5py.File("multichannel_data.hdf", "w") as file:
+        with h5py.File(save_path, "w") as file:
             dset = file.create_dataset(
                 "data",
                 shape=(height, width, num_channels),
@@ -66,9 +65,9 @@ class HdrPresenter:
                 del data
             print("保存完成")
 
-    def save_hdf5_resize(self, hdr: np.ndarray, x1, y1, x2, y2) -> None:
+    def save_hdf5_resize(self, hdr: np.ndarray, x1, y1, x2, y2,save_path:str) -> None:
         num_channels = hdr.shape[2]
-        with h5py.File("multichannel_data.hdf", "w") as file:
+        with h5py.File(save_path, "w") as file:
             dset = file.create_dataset(
                 "data",
                 shape=(num_channels, y2 - y1, x2 - x1),
