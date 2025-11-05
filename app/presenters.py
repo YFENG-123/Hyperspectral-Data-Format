@@ -28,13 +28,14 @@ class Presenters:
 
         # 绑定函数
         ## json
-        views.bind_json_replace_label(self.json_replace_label)
-        views.bind_json_delete_label(self.json_delete_label)
-        views.bind_json_combine(self.json_combine)
         views.bind_json_open(self.json_open)
+        views.bind_json_combine(self.json_combine)
         views.bind_json_count(self.json_count_label)
         views.bind_json_id(self.json_generate_id)
+        views.bind_json_replace_label(self.json_replace_label)
+        views.bind_json_delete_label(self.json_delete_label)
         views.bind_json_convert_to_tif(self.json_convert_to_tif)
+        views.bind_json_convert_to_mat(self.json_convert_to_mat)
 
         ## tif
         views.bind_tif_open(self.tif_open)
@@ -91,45 +92,62 @@ class Presenters:
     def json_replace_label(self):
         """
         @chutaiyang
-        标签替换功能：用户交互界面，输入原始标签和新标签进行替换
+        标签替换功能：按照清晰的调用流程实现标签替换
+        
+        用户操作 → json_replace_label (协调层) 
+                  ↓ 
+         get_validated_label_input (获取原始标签) 
+                  ↓ 
+         get_validated_label_input (获取新标签) 
+                  ↓ 
+         replace_label (业务逻辑层) 
+                  ↓ 
+         _check_label_exists (检查存在性) 
+                  ↓ 
+         _replace_labels_in_shapes (执行替换) 
+                  ↓ 
+         save_json_with_name (保存结果)
         """
-        # 检查是否有加载的JSON数据
-        json_dict = self.model.json.get_json_dict()
+        # 步骤1：检查数据准备
+        json_dict = self.models.json.get_json_dict()
         if json_dict is None:
             # 如果没有数据，先加载JSON文件
             self.json_open()
-            json_dict = self.model.json.get_json_dict()
+            json_dict = self.models.json.get_json_dict()
             if json_dict is None:
                 return  # 用户取消了文件选择
         
-        # 创建输入对话框
-        import tkinter as tk
-        from tkinter import simpledialog
-        
-        # 获取原始标签输入
-        original_label = simpledialog.askstring("标签替换", "请输入要替换的原始标签名称:")
+        # 步骤2：获取原始标签（调用jsonp接口1）
+        original_label = self.json.get_validated_label_input("请输入要替换的原始标签:")
         if original_label is None:  # 用户点击取消
             return
-            
-        # 获取新标签输入
-        new_label = simpledialog.askstring("标签替换", f"请输入替换'{original_label}'的新标签名称:")
+        
+        # 步骤3：获取新标签（调用jsonp接口1）
+        new_label = self.json.get_validated_label_input("请输入替换后的新标签:")
         if new_label is None:  # 用户点击取消
             return
         
-        # 执行标签替换
-        modified_json = self.json.replace_label(json_dict, original_label, new_label)
+        # 步骤4：执行标签替换（调用jsonp接口2）
+        try:
+            modified_json = self.json.replace_label(json_dict, original_label, new_label)
+        except ValueError as e:
+            # 处理标签不存在等错误
+            import tkinter.messagebox
+            tkinter.messagebox.showerror("替换失败", str(e))
+            return
         
         # 更新模型数据
-        self.model.json.set_json_dict(modified_json)
+        self.models.json.set_json_dict(modified_json)
         
         # 显示替换结果
-        self.view.set_json_label(f"标签已替换: {original_label} -> {new_label}")
+        self.views.set_json_label(f"标签已替换: {original_label} -> {new_label}")
         
-        # 保存修改后的文件
-        save_choice = tk.messagebox.askyesno("保存文件", "是否保存修改后的文件？")
+        # 步骤5：保存修改后的文件
+        import tkinter.messagebox
+        save_choice = tkinter.messagebox.askyesno("保存文件", "是否保存修改后的文件？")
         if save_choice:
-            self.json.save_json(modified_json)
-        pass
+            # 使用新的保存接口，支持自定义文件名
+            self.json.save_json_with_name(modified_json, f"modified_{original_label}_to_{new_label}.json")
 
     def json_delete_label(self):
         """
@@ -157,6 +175,21 @@ class Presenters:
 
         # 保存 tif
         self.tif.save_tif(ndarray)
+
+    def json_convert_to_mat(self):
+        """
+        @chutaiyang
+        参考 json_convert_to_tif 的方式实现 JSON 转换为 MAT 格式
+        """
+        # 加载 json 和 id
+        json_dict = self.models.json.get_json_dict()
+        id_list = self.models.json.get_id_list()
+
+        # 转换成 mat 格式字典
+        mat_dict = self.json.convert_to_mat_ndarray(json_dict, id_list)
+
+        # 保存 mat
+        self.mat.save_mat(mat_dict)
 
     # Tif
     def tif_open(self):

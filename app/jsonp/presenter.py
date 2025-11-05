@@ -4,7 +4,7 @@ import numpy as np
 import cupy as cp
 import tkinter as tk
 from typing import Tuple
-from tkinter import filedialog
+from tkinter import filedialog, simpledialog, messagebox
 from jsonp.view import JsonView
 from jsonp.model import JsonModel
 from jsonp.schema import JsonSchema
@@ -53,10 +53,31 @@ class JsonPresenter:
         return vars(json_pack)
 
     def save_json(self, json_file_dict: dict) -> None:
+        """
+        保存JSON文件：通用保存方法
+        """
         fold_path = filedialog.asksaveasfilename(
             filetypes=[("JSON", "*.json")],
             defaultextension=".json",
             initialfile="combine.json",
+        )
+        with open(fold_path, "w", encoding="utf-8") as file:
+            json.dump(json_file_dict, file, indent=4, ensure_ascii=False)
+        return None
+
+    def save_json_with_name(self, json_file_dict: dict, default_filename: str = "modified.json") -> None:
+        """
+        @chutaiyang
+        保存JSON文件：支持自定义文件名
+        
+        Args:
+            json_file_dict: JSON数据字典
+            default_filename: 默认文件名
+        """
+        fold_path = filedialog.asksaveasfilename(
+            filetypes=[("JSON", "*.json")],
+            defaultextension=".json",
+            initialfile=default_filename,
         )
         with open(fold_path, "w", encoding="utf-8") as file:
             json.dump(json_file_dict, file, indent=4, ensure_ascii=False)
@@ -82,23 +103,110 @@ class JsonPresenter:
             value_list[idx] = 0  # 将最大值索引对应值置零
         return id_list
 
+    def get_validated_label_input(self, prompt: str = "请输入标签名称:") -> str:
+        """
+        @chutaiyang
+        获取并校验标签输入：通过UI获取用户输入的标签并进行基础校验
+        
+        Args:
+            prompt: 输入提示信息
+            
+        Returns:
+            str: 经过校验的标签字符串，用户取消时返回None
+        """
+        while True:
+            # 通过UI获取标签输入
+            label = simpledialog.askstring("标签输入", prompt)
+            
+            # 用户点击取消
+            if label is None:
+                return None
+            
+            # 去除前后空格
+            label = label.strip()
+            
+            # 检查是否为空
+            if not label:
+                messagebox.showwarning("输入错误", "标签不能为空")
+                continue
+            
+            # 返回有效的标签
+            return label
+
+    def _check_label_exists(self, json_dict: dict, label: str) -> bool:
+        """
+        @chutaiyang
+        检查标签存在性：验证指定标签是否存在于JSON数据中
+        
+        Args:
+            json_dict: JSON数据字典
+            label: 要检查的标签
+            
+        Returns:
+            bool: 标签是否存在
+        """
+        if "shapes" not in json_dict:
+            return False
+            
+        for shape in json_dict["shapes"]:
+            if shape.get("label") == label:
+                return True
+        return False
+
+    def _replace_labels_in_shapes(
+        self, json_dict: dict, original_label: str, new_label: str
+    ) -> dict:
+        """
+        @chutaiyang
+        执行标签替换：遍历JSON字典中的标注数据，将指定的原始标签替换为新的标签
+        
+        Args:
+            json_dict: JSON数据字典
+            original_label: 要替换的原始标签
+            new_label: 替换后的新标签
+            
+        Returns:
+            dict: 修改后的JSON字典
+        """
+        # 创建JSON字典的深拷贝，避免修改原始数据
+        modified_json = json_dict.copy()
+        
+        # 执行标签替换
+        if "shapes" in modified_json:
+            for shape in modified_json["shapes"]:
+                if shape.get("label") == original_label:
+                    shape["label"] = new_label
+        
+        return modified_json
+
     def replace_label(
         self, json_dict: dict, original_label: str, new_label: str
     ) -> dict:
         """
         @chutaiyang
-        标签替换功能：遍历JSON字典中的标注数据，将指定的原始标签替换为新的标签
-        """
-        modified_json = json_dict.copy()#创建JSON字典的深拷贝，避免修改原始数据
+        标签替换功能：完整的标签替换流程
         
-        # 遍历所有标注形状（shapes）
-        if "shapes" in modified_json:
-            for shape in modified_json["shapes"]:
-                # 检查当前形状的标签是否与原始标签匹配
-                if shape.get("label") == original_label:
-                    # 替换标签名称
-                    shape["label"] = new_label
-        return modified_json
+        Args:
+            json_dict: JSON数据字典
+            original_label: 要替换的原始标签
+            new_label: 替换后的新标签
+            
+        Returns:
+            dict: 修改后的JSON字典
+            
+        Raises:
+            ValueError: 如果标签不存在或替换失败
+        """
+        # 检查标签是否相同
+        if original_label == new_label:
+            return json_dict.copy()
+        
+        # 检查原始标签是否存在
+        if not self._check_label_exists(json_dict, original_label):
+            raise ValueError(f"标签 '{original_label}' 不存在于JSON数据中")
+        
+        # 执行标签替换
+        return self._replace_labels_in_shapes(json_dict, original_label, new_label)
     
     def delete_label(self, json_dict: dict, label: str) -> dict:
         """
@@ -155,6 +263,55 @@ class JsonPresenter:
                 image_ndarray, [points], True, colors[id_list.index(shape["label"])]
             )
         return image_ndarray
+
+    def convert_to_mat_ndarray(
+        self, json_dict: dict, id_list: list
+    ) -> dict:
+        """
+        @chutaiyang
+        将JSON标注数据转换为MAT格式的字典
+        
+        Args:
+            json_dict: JSON数据字典
+            id_list: 标签ID列表
+            
+        Returns:
+            dict: 包含标注信息的MAT格式字典
+        """
+        # 提取基本信息
+        mat_data = {}
+        
+        # 保存图像尺寸
+        if "imageHeight" in json_dict and "imageWidth" in json_dict:
+            mat_data["image_height"] = json_dict["imageHeight"]
+            mat_data["image_width"] = json_dict["imageWidth"]
+        
+        # 保存图像路径（如果存在）
+        if "imagePath" in json_dict:
+            mat_data["image_path"] = json_dict["imagePath"]
+        
+        # 保存所有形状数据
+        if "shapes" in json_dict:
+            shapes_data = []
+            for shape in json_dict["shapes"]:
+                shape_info = {
+                    "label": shape.get("label", ""),
+                    "points": shape.get("points", []),
+                    "shape_type": shape.get("shape_type", "polygon"),
+                    "group_id": shape.get("group_id", None),
+                    "flags": shape.get("flags", {})
+                }
+                shapes_data.append(shape_info)
+            mat_data["shapes"] = shapes_data
+        
+        # 保存标签统计信息
+        count_dict = self.count_label(json_dict)
+        mat_data["label_counts"] = count_dict
+        
+        # 保存ID列表
+        mat_data["id_list"] = id_list
+        
+        return mat_data
 
 
 if __name__ == "__main__":

@@ -32,6 +32,7 @@ class Views(tk.Tk):
         self.json_menu.add_command(label="Count")
         self.json_menu.add_command(label="Id")
         self.json_menu.add_command(label="Convert_to_tif")
+        self.json_menu.add_command(label="Convert_to_mat")
 
         self.mat_menu.add_command(label="Open")
         self.mat_menu.add_command(label="Save_mat")
@@ -79,6 +80,9 @@ class Views(tk.Tk):
 
     def bind_json_convert_to_tif(self, command: callable):
         self.json_menu.entryconfig("Convert_to_tif", command=command)
+
+    def bind_json_convert_to_mat(self, command: callable):
+        self.json_menu.entryconfig("Convert_to_mat", command=command)
 
     # Tif
     def bind_tif_open(self, command: callable):
