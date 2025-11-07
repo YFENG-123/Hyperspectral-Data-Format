@@ -11,15 +11,15 @@ class MatPresenter:
         self.view = mat_view
         self.model = mat_model
 
-    def load_mat(self,mat_path:str) -> tuple[dict, str]:
+    def load_mat(self, mat_path: str) -> tuple[dict, str]:
         mat_dict = sio.loadmat(mat_path)
         return mat_dict
 
-    def save_mat(self, ndarray: np.ndarray,save_path: str):
+    def save_mat(self, ndarray: np.ndarray, save_path: str):
         sio.savemat(save_path, {"mat_ndarray": ndarray})
-    
-    def save_mat_resize(self, ndarray: np.ndarray, x1, y1, x2, y2,save_path):
-        ndarray = ndarray[y1:y2, x1:x2]
+
+    def save_mat_resize(self, ndarray: np.ndarray, x1, y1, x2, y2, save_path):
+        ndarray = ndarray[x1:y1, x2:y2]
         sio.savemat(save_path, {"mat_ndarray": ndarray})
 
 
