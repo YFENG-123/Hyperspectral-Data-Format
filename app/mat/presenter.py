@@ -19,7 +19,7 @@ class MatPresenter:
         sio.savemat(save_path, {"mat_ndarray": ndarray})
 
     def save_mat_resize(self, ndarray: np.ndarray, x1, y1, x2, y2, save_path):
-        ndarray = ndarray[x1:y1, x2:y2]
+        ndarray = ndarray[x1:x2,y1:y2]
         sio.savemat(save_path, {"mat_ndarray": ndarray})
 
 
