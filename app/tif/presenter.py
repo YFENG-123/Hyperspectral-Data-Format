@@ -1,8 +1,7 @@
-import tkinter as tk
+
 import numpy as np
 import cv2
 
-from tkinter import filedialog
 from .view import TifView
 from .model import TifModel
 

@@ -19,15 +19,15 @@ class MatPresenter:
         mat_dict = sio.loadmat(mat_path)
         return mat_dict, mat_path
 
-    def save_mat(self, ndarray):
-        fold_path = filedialog.asksaveasfilename(
-            filetypes=[("MATLAB", "*.mat")],
-            defaultextension=".mat",
-            initialfile="save.mat",
-        )
-        if not fold_path:
-            return None
-        sio.savemat(fold_path, {"mat_ndarray": ndarray})
+    def save_mat(self, ndarray: np.ndarray,save_path: str):
+        sio.savemat(save_path, {"mat_ndarray": ndarray})
+    
+    def save_mat_resize(self, ndarray: np.ndarray, x1, y1, x2, y2,save_path):
+        #保存框选区域
+
+        ndarray = ndarray[y1:y2, x1:x2]
+        print(f"保存数据形状: {ndarray.shape}")
+        sio.savemat(save_path, {"mat_ndarray": ndarray})
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@ class Views(tk.Tk):
         print(width, height)
         self.geometry(str(int(width/3))+"x"+str(int(height/4))+"+"+str(int(width/4))+"+"+str(int(height/4)))
 
+        
         self.json = JsonView(self)
         self.tif = TifView(self)
         self.mat = MatView(self)

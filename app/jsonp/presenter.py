@@ -3,11 +3,13 @@ from tkinter import simpledialog
 import cv2
 import numpy as np
 import tkinter as tk
-from tkinter import filedialog
+from typing import Tuple
+from tkinter import simpledialog, messagebox
+from shapely.geometry import Polygon
 from jsonp.view import JsonView
 from jsonp.model import JsonModel
 from jsonp.schema import JsonSchema
-from shapely.geometry import Polygon
+from jsonp.exception import JsonDataError
 
 
 class JsonPresenter:
@@ -15,15 +17,17 @@ class JsonPresenter:
         self.view = view
         self.model = model
 
-    def load_json(self) -> tuple[dict, str]:
-        json_path = filedialog.askopenfilename()
-        with open(json_path, "r", encoding="utf-8") as file:
-            json_dict = json.load(file)
-        return json_dict, json_path
+    def load_json(self, json_path: str) -> dict:
+        """
+        @YFENG-123
+        """
 
-    def get_json_path_list(self) -> list:
-        json_path_list = list(filedialog.askopenfilenames())
-        return json_path_list
+        with open(json_path, "r", encoding="utf-8") as file:
+            try:
+                json_dict = json.load(file)
+            except json.JSONDecodeError as e:
+                raise JsonDataError(json_path, str(e))
+        return json_dict
 
     def load_json_list(self, json_path_list) -> list:
         json_dict_list = []
@@ -137,10 +141,34 @@ class JsonPresenter:
         # 获取图像尺寸
         image_height = json_dict["imageHeight"]
         image_width = json_dict["imageWidth"]
-        # 创建一个与图像大小相同的三维全一数组
-        image_array = np.ones((image_height, image_width, 3), dtype=np.uint8) * 255
-        print(image_array)
-
+        image_array = (
+            np.ones((image_height, image_width, 3), dtype=np.uint8) * 255
+        )  # 创建一个与图像大小相同的三维全一数组
+        # 生成颜色列表（数量无限，不重复）
+        colors = np.random.randint(0, 256, size=(len(id_list), 3))
+        # 固定颜色列表（常用的20种颜色）
+        colors = [
+            (255, 0, 0),  # 红色
+            (0, 255, 0),  # 绿色
+            (0, 0, 255),  # 蓝色
+            (255, 255, 0),  # 黄色
+            (255, 0, 255),  # 洋红
+            (0, 255, 255),  # 青色
+            (128, 0, 0),  # 深红
+            (0, 128, 0),  # 深绿
+            (0, 0, 128),  # 深蓝
+            (128, 128, 0),  # 橄榄色
+            (128, 0, 128),  # 紫色
+            (0, 128, 128),  # 深青
+            (255, 165, 0),  # 橙色
+            (255, 192, 203),  # 粉红
+            (165, 42, 42),  # 棕色
+            (128, 128, 128),  # 灰色
+            (0, 0, 0),  # 黑色
+            (255, 255, 255),  # 白色
+            (192, 192, 192),  # 银色
+            (255, 215, 0),  # 金色
+        ]
         # 绘制每个形状
         for shape in json_dict["shapes"]:
             points = np.array(shape["points"], dtype=np.int32)
