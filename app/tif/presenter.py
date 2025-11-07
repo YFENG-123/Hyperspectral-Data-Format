@@ -5,24 +5,20 @@ import cv2
 from .view import TifView
 from .model import TifModel
 
+import numpy as np
+
 
 class TifPresenter:
     def __init__(self, tif_view: TifView, tif_model: TifModel):
         self.view = tif_view
         self.model = tif_model
 
-    def load_tif(self) -> tuple[np.ndarray, str]:
-        tif_path = filedialog.askopenfilename()
+    def load_tif(self,tif_path) -> np.ndarray:
         tif_matlike = cv2.imread(tif_path)
         tif_ndarray = np.array(tif_matlike)
         return tif_ndarray, tif_path
 
-    def save_tif(self, tif_ndarray) -> None:
-        fold_path = filedialog.asksaveasfilename(
-            filetypes=[("TIFF", "*.tif"), ("TIFF", "*.tiff")],
-            defaultextension=".tif",
-            initialfile="output.tif",
-        )
+    def save_tif(self, tif_ndarray,fold_path) -> None:
         if fold_path:
             cv2.imwrite(fold_path, tif_ndarray)
         return None

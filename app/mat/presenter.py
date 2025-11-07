@@ -1,8 +1,7 @@
 import tkinter as tk
 import scipy.io as sio
-
+import numpy as np
 from tkinter import filedialog
-
 from mat.view import MatView
 from mat.model import MatModel
 
@@ -12,21 +11,15 @@ class MatPresenter:
         self.view = mat_view
         self.model = mat_model
 
-    def load_mat(self) -> tuple[dict, str]:
-        mat_path = filedialog.askopenfilename(filetypes=[("MATLAB", "*.mat")])
-        if not mat_path:
-            return None, ""
+    def load_mat(self,mat_path:str) -> tuple[dict, str]:
         mat_dict = sio.loadmat(mat_path)
-        return mat_dict, mat_path
+        return mat_dict
 
     def save_mat(self, ndarray: np.ndarray,save_path: str):
         sio.savemat(save_path, {"mat_ndarray": ndarray})
     
     def save_mat_resize(self, ndarray: np.ndarray, x1, y1, x2, y2,save_path):
-        #保存框选区域
-
         ndarray = ndarray[y1:y2, x1:x2]
-        print(f"保存数据形状: {ndarray.shape}")
         sio.savemat(save_path, {"mat_ndarray": ndarray})
 
 

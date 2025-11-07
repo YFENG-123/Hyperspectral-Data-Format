@@ -14,8 +14,7 @@ class HdrPresenter:
         self.view = view
         self.model = model
 
-    def load_hdr(self) -> np.ndarray:
-        hdr_path = filedialog.askopenfilename(filetypes=[("HDR", "*.hdr")])
+    def load_hdr(self, hdr_path) -> np.ndarray:
         hdr = spectral.open_image(hdr_path)
         hdr = hdr.open_memmap()
         return hdr
@@ -66,9 +65,9 @@ class HdrPresenter:
                 del data
             print("保存完成")
 
-    def save_hdf5_resize(self, hdr: np.ndarray, x1, y1, x2, y2) -> None:
+    def save_hdf5_resize(self, hdr: np.ndarray, x1, y1, x2, y2, save_path) -> None:
         num_channels = hdr.shape[2]
-        with h5py.File("multichannel_data.hdf", "w") as file:
+        with h5py.File(save_path, "w") as file:
             dset = file.create_dataset(
                 "data",
                 shape=(x2 - x1, y2 - y1, num_channels),
