@@ -187,17 +187,25 @@ class Presenters:
             save_path = self.views.ask_save_path(
                 "MAT", ".mat", "json_convert_to_mat_resize"
             )
-            '''
+            """
             x1 = 1276
             y1 = 7284
             x2 = 6288
             y2 = 11265
-            '''
-            x1 = 500
-            y1 = 500
-            x2 = 600
-            y2 = 700 
+            """
+            """x1 = 2047
+            y1 = 7629
+            x2 = 4488
+            y2 = 10023"""
+            y1 = 2047
+            x1 = 7629
+            y2 = 4488
+            x2 = 10023
             self.mat.save_mat_resize(json_ndarray, x1, y1, x2, y2, save_path)
+            save_path = self.views.ask_save_path(
+                "TIF", ".tif", "json_convert_to_mat_resize"
+            )
+            self.tif.save_tif(json_ndarray, save_path)
         except Error as e:
             self.views.show_error(str(e))
 
@@ -290,16 +298,21 @@ class Presenters:
     def hdr_convert_to_mat_resize(self):
         try:
             hdr_ndarray = self.models.hdr.get_hdr()
-            '''
+            """
             x1 = 1276
             y1 = 7284
             x2 = 6288
             y2 = 11265
-            '''
-            x1 = 500
-            y1 = 500
-            x2 = 600
-            y2 = 700 
+            """
+            """x1 = 2047
+            y1 = 7629
+            x2 = 4488
+            y2 = 10023"""
+            y1 = 2047
+            x1 = 7629
+            y2 = 4488
+            x2 = 10023
+
             save_path = self.views.ask_save_path(
                 "HDF5", ".hdf", "hdr_convert_to_mat_resize"
             )

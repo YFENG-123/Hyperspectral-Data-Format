@@ -293,7 +293,7 @@ class JsonPresenter:
         # 获取图像尺寸
         image_height = json_dict["imageHeight"]
         image_width = json_dict["imageWidth"]
-        image_array = np.zeros((image_height, image_width), dtype=np.uint8)
+        image_array = np.zeros((image_height, image_width), dtype=np.uint16)
         # 绘制每个形状
         for shape in json_dict["shapes"]:
             points = np.array(shape["points"], dtype=np.int32)
