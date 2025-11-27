@@ -94,7 +94,7 @@ class Views(tk.Tk):
         return label
 
     def ask_open_path(self, file_type: str, suffix: str) -> str:
-        file_path = filedialog.askopenfilename(
+        file_path = filedialog.askopenfilenames(
             filetypes=[(file_type, "*" + suffix)], defaultextension=suffix
         )
 
