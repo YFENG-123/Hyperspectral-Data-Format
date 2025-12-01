@@ -82,7 +82,7 @@ class Presenters:
     def json_combine(self):  # 数据量大，暂时不持久化
         try:
             # 获取json路径列表
-            json_path_list = self.views.ask_open_path("JSON", ".json")
+            json_path_list = self.views.ask_open_path_list("JSON", ".json")
             self.models.json.set_json_path_list(json_path_list)
 
             # 加载json字典列表

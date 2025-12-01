@@ -93,8 +93,14 @@ class Views(tk.Tk):
         label = simpledialog.askstring("标签删除", "请输入新标签名称:")
         return label
 
-    def ask_open_path(self, file_type: str, suffix: str) -> str:
+    def ask_open_path_list(self, file_type: str, suffix: str) -> list:
         file_path = filedialog.askopenfilenames(
+            filetypes=[(file_type, "*" + suffix)], defaultextension=suffix
+        )
+
+        return file_path
+    def ask_open_path(self, file_type: str, suffix: str) -> str:
+        file_path = filedialog.askopenfilename(
             filetypes=[(file_type, "*" + suffix)], defaultextension=suffix
         )
 
