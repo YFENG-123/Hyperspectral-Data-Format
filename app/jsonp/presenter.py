@@ -4,8 +4,8 @@ import numpy as np
 import cupy as cp
 import copy
 import tkinter as tk
-from typing import Tuple
-from tkinter import simpledialog, messagebox
+from typing import Tuple, Optional
+from tkinter import simpledialog, messagebox, filedialog
 from shapely.geometry import Polygon
 from jsonp.view import JsonView
 from jsonp.model import JsonModel
@@ -58,7 +58,7 @@ class JsonPresenter:
             for shapes in json_dict["shapes"]:
                 json_pack.shapes.append(shapes)
 
-        json_pack.flag = json_dict_list[0]["flags"]
+        json_pack.flags = json_dict_list[0]["flags"]
         json_pack.imagePath = json_dict_list[0]["imagePath"]
         json_pack.imageData = json_dict_list[0]["imageData"]
         json_pack.imageHeight = json_dict_list[0]["imageHeight"]
@@ -67,7 +67,7 @@ class JsonPresenter:
         # json_pack.description = json_dict_list[0]["description"]
         return vars(json_pack)
 
-    def seve_json(self, json_file_dict: dict, file_path) -> None:
+    def save_json(self, json_file_dict: dict, file_path) -> None:
         """
         @YFENG-123
         """
@@ -99,7 +99,7 @@ class JsonPresenter:
             value_list[idx] = 0  # 将最大值索引对应值置零
         return id_list
 
-    def replace_label_with_ui(self, json_dict: dict = None) -> None:
+    def replace_label_with_ui(self, json_dict: Optional[dict] = None) -> None:
         """
         @chutaiyang
         标签替换功能：用户交互界面，输入原始标签和新标签进行替换
@@ -113,9 +113,12 @@ class JsonPresenter:
         # 检查是否有加载的JSON数据
         if json_dict is None:
             # 如果没有数据，先加载JSON文件
-            json_dict, _ = self.load_json()
-            if json_dict is None:
+            json_path = filedialog.askopenfilename(
+                filetypes=[("JSON", "*.json")], defaultextension=".json"
+            )
+            if not json_path:
                 return  # 用户取消了文件选择
+            json_dict = self.load_json(json_path)
 
         # 获取原始标签输入
         original_label = simpledialog.askstring(
@@ -165,7 +168,13 @@ class JsonPresenter:
             # 保存修改后的文件
             save_choice = messagebox.askyesno("保存文件", "是否保存修改后的文件？")
             if save_choice:
-                self.save_json(modified_json)
+                save_path = filedialog.asksaveasfilename(
+                    filetypes=[("JSON", "*.json")],
+                    defaultextension=".json",
+                    initialfile="json_replace_label"
+                )
+                if save_path:
+                    self.save_json(modified_json, save_path)
 
             # 更新模型数据（如果存在模型）
             if hasattr(self, "model") and hasattr(self.model, "set_json_dict"):
@@ -223,7 +232,8 @@ class JsonPresenter:
                 if shape.get("label") == original_label:
                     # 替换标签名称
                     shape["label"] = new_label
-        # return modified_json
+                    replaced_count += 1
+        return replaced_count
 
     def delete_label(self, json_dict: dict, label: str) -> dict:
         """
@@ -332,7 +342,7 @@ class JsonPresenter:
             dict: 包含标注数据的MAT格式字典
         """
         # 调用可复用的convert_to_ndarray接口转换为图像数组
-        annotation_array = self.convert_to_ndarray(json_dict, id_list, thickness)
+        annotation_array = self.convert_to_ndarray_gray(json_dict, id_list, thickness)
 
         # 构建MAT数据结构（移除可能导致问题的imageData字段）
         mat_data = {
@@ -407,8 +417,25 @@ class JsonPresenter:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    json_presenter = JsonPresenter(JsonView(root), JsonModel(root))
-    json_path_list = json_presenter.get_json_path_list()
-    json_dict_list = json_presenter.load_json_list(json_path_list)
-    json_pack = json_presenter.combine_json(json_dict_list)
-    json_presenter.save_json(json_pack)
+    json_view = JsonView(root)
+    json_model = JsonModel(root)
+    json_presenter = JsonPresenter(json_view, json_model)
+    
+    # 获取JSON文件路径列表
+    json_path_list = filedialog.askopenfilenames(
+        filetypes=[("JSON", "*.json")], defaultextension=".json"
+    )
+    if not json_path_list:
+        print("未选择文件")
+    else:
+        json_dict_list = json_presenter.load_json_list(json_path_list)
+        json_pack = json_presenter.combine_json(json_dict_list)
+        
+        # 获取保存路径
+        save_path = filedialog.asksaveasfilename(
+            filetypes=[("JSON", "*.json")],
+            defaultextension=".json",
+            initialfile="json_combine"
+        )
+        if save_path:
+            json_presenter.save_json(json_pack, save_path)

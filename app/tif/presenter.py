@@ -1,11 +1,8 @@
-
 import numpy as np
 import cv2
 
 from .view import TifView
 from .model import TifModel
-
-import numpy as np
 
 
 class TifPresenter:
@@ -13,12 +10,12 @@ class TifPresenter:
         self.view = tif_view
         self.model = tif_model
 
-    def load_tif(self,tif_path) -> np.ndarray:
+    def load_tif(self, tif_path: str) -> np.ndarray:
         tif_matlike = cv2.imread(tif_path)
         tif_ndarray = np.array(tif_matlike)
-        return tif_ndarray, tif_path
+        return tif_ndarray
 
-    def save_tif(self, tif_ndarray,fold_path) -> None:
+    def save_tif(self, tif_ndarray: np.ndarray, fold_path: str) -> None:
         if fold_path:
             cv2.imwrite(fold_path, tif_ndarray)
         return None

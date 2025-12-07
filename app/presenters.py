@@ -93,7 +93,7 @@ class Presenters:
 
             # 保存json
             save_path = self.views.ask_save_path("JSON", ".json", "json_combine")
-            self.json.seve_json(json_dict, save_path)
+            self.json.save_json(json_dict, save_path)
         except Error as e:
             self.views.show_error(str(e))
 
@@ -127,7 +127,7 @@ class Presenters:
 
             # 保存 json
             save_path = self.views.ask_save_path("JSON", ".json", "json_delete")
-            self.json.seve_json(save_path, "deleted")
+            self.json.save_json(json_dict, save_path)
         except Error as e:
             self.views.show_error(str(e))
 
@@ -171,7 +171,8 @@ class Presenters:
             mat_data = self.json.convert_to_mat(json_dict, id_list, 5)
 
             # 保存为MAT文件
-            self.mat.save_mat(mat_data)
+            save_path = self.views.ask_save_path("MAT", ".mat", "json_convert_to_mat")
+            self.mat.save_mat(mat_data, save_path)
         except Error as e:
             self.views.show_error(str(e))
 
@@ -184,28 +185,26 @@ class Presenters:
             id_list = self.models.json.get_id_list()
             json_ndarray = self.json.convert_to_ndarray_gray(json_dict, id_list, -1)
 
+            # 通过弹窗获取裁剪坐标
+            coordinates = self.views.ask_resize_coordinates()
+            if coordinates is None:
+                return  # 用户取消了输入
+            
+            x1, y1, x2, y2 = coordinates
+
             save_path = self.views.ask_save_path(
                 "MAT", ".mat", "json_convert_to_mat_resize"
             )
-            """
-            x1 = 1276
-            y1 = 7284
-            x2 = 6288
-            y2 = 11265
-            """
-            """x1 = 2047
-            y1 = 7629
-            x2 = 4488
-            y2 = 10023"""
-            y1 = 2047
-            x1 = 7629
-            y2 = 4488
-            x2 = 10023
+            if not save_path:
+                return  # 用户取消了保存路径选择
+            
             self.mat.save_mat_resize(json_ndarray, x1, y1, x2, y2, save_path)
+            
             save_path = self.views.ask_save_path(
                 "TIF", ".tif", "json_convert_to_mat_resize"
             )
-            self.tif.save_tif(json_ndarray, save_path)
+            if save_path:
+                self.tif.save_tif(json_ndarray, save_path)
         except Error as e:
             self.views.show_error(str(e))
 
@@ -260,7 +259,7 @@ class Presenters:
             self.models.mat.set_mat_path(mat_path)
 
             mat_path = self.models.mat.get_mat_path()
-            self.view.set_mat_label(mat_path)
+            self.views.set_mat_label(mat_path)
         except Error as e:
             self.views.show_error(str(e))
 
@@ -298,28 +297,20 @@ class Presenters:
     def hdr_convert_to_mat_resize(self):
         try:
             hdr_ndarray = self.models.hdr.get_hdr()
-            """
-            x1 = 1276
-            y1 = 7284
-            x2 = 6288
-            y2 = 11265
-            """
             
-            """
-            x1 = 2047
-            y1 = 7629
-            x2 = 4488
-            y2 = 10023
-            """
+            # 通过弹窗获取裁剪坐标
+            coordinates = self.views.ask_resize_coordinates()
+            if coordinates is None:
+                return  # 用户取消了输入
             
-            y1 = 2047
-            x1 = 7629
-            y2 = 4488
-            x2 = 10023
+            x1, y1, x2, y2 = coordinates
 
             save_path = self.views.ask_save_path(
                 "HDF5", ".hdf", "hdr_convert_to_mat_resize"
             )
+            if not save_path:
+                return  # 用户取消了保存路径选择
+            
             self.hdr.save_hdf5_resize(hdr_ndarray, x1, y1, x2, y2, save_path)
         except Error as e:
             self.views.show_error(str(e))

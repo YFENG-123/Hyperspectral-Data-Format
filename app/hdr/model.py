@@ -7,6 +7,8 @@ class HdrModel:
 
     def __init__(self, root):
         self.root = root
+        self.hdr_path = None
+        self.hdr = None
 
     # hdr_path
     def set_hdr_path(self, hdr_path: str) -> None:
