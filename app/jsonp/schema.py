@@ -1,6 +1,6 @@
 class JsonSchema:
     version: str
-    flasg: dict
+    flags: dict
     shapes: list
     imagePath: str
     imageData: str

@@ -1,9 +1,18 @@
+from jsonp.exception import (
+    JsonDictNotFoundError,
+    CountDictNotFoundError,
+    IdListNotFoundError,
+    JsonPathNotFoundError,
+    JsonPathListNotFoundError,
+)
+
+
 class JsonModel:
     json_dict: dict
     json_path: str
-    json_path_list: list
     count_dict: dict
     id_list: list
+    json_path_list: list
 
     def __init__(self, root):
         self.root = root
@@ -13,6 +22,8 @@ class JsonModel:
         self.json_dict = json_dict
 
     def get_json_dict(self) -> dict:
+        if self.json_dict is None:
+            raise JsonDictNotFoundError("Json file not exist")
         return self.json_dict
 
     # count_dict
@@ -20,6 +31,8 @@ class JsonModel:
         self.count_dict = count_dict
 
     def get_count_dict(self) -> dict:
+        if self.count_dict is None:
+            raise CountDictNotFoundError("Count dict not exist")
         return self.count_dict
 
     # id_list
@@ -27,6 +40,8 @@ class JsonModel:
         self.id_list = id_list
 
     def get_id_list(self) -> list:
+        if self.id_list is None:
+            raise IdListNotFoundError("Id list not exist")
         return self.id_list
 
     # json_path
@@ -34,6 +49,8 @@ class JsonModel:
         self.json_path = json_path
 
     def get_json_path(self) -> str:
+        if self.json_path is None:
+            raise JsonPathNotFoundError("Json path not exist")
         return self.json_path
 
     # json_path_list
@@ -41,4 +58,6 @@ class JsonModel:
         self.json_path_list = json_path_list
 
     def get_json_path_list(self) -> list:
+        if self.json_path_list is None:
+            raise JsonPathListNotFoundError("Json path list not exist")
         return self.json_path_list
