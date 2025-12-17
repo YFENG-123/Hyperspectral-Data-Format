@@ -215,9 +215,11 @@ class Views(tk.Tk):
                 x2 = int(entry_x2.get())
                 y2 = int(entry_y2.get())
                 
-                # 验证坐标有效性
-                if x1 >= x2 or y1 >= y2:
-                    messagebox.showerror("输入错误", "坐标无效：x1 必须小于 x2，y1 必须小于 y2")
+                # 验证坐标有效性（考虑对调：x1和y1对调，x2和y2对调）
+                # 对调后：新的x1=原y1, 新的y1=原x1, 新的x2=原y2, 新的y2=原x2
+                # 所以需要验证：y1 < y2（确保对调后x1 < x2）和 x1 < x2（确保对调后y1 < y2）
+                if y1 >= y2 or x1 >= x2:
+                    messagebox.showerror("输入错误", "坐标无效：y1 必须小于 y2，x1 必须小于 x2（坐标会对调）")
                     return
                 
                 result[0] = (x1, y1, x2, y2)

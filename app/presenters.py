@@ -1,3 +1,4 @@
+import numpy as np
 from views import Views
 from models import Models
 
@@ -50,6 +51,10 @@ class Presenters:
         try:
             # 获取json路径
             json_path = self.views.ask_open_path("JSON", ".json")
+            # 检查用户是否取消了文件选择
+            if not json_path:
+                return
+            
             self.models.json.set_json_path(json_path)
 
             # 显示json路径
@@ -83,6 +88,10 @@ class Presenters:
         try:
             # 获取json路径列表
             json_path_list = self.views.ask_open_path_list("JSON", ".json")
+            # 检查用户是否取消了文件选择
+            if not json_path_list:
+                return
+            
             self.models.json.set_json_path_list(json_path_list)
 
             # 加载json字典列表
@@ -93,6 +102,9 @@ class Presenters:
 
             # 保存json
             save_path = self.views.ask_save_path("JSON", ".json", "json_combine")
+            # 检查用户是否取消了保存路径选择
+            if not save_path:
+                return
             self.json.save_json(json_dict, save_path)
         except Error as e:
             self.views.show_error(str(e))
@@ -111,6 +123,27 @@ class Presenters:
         # 调用下级接口处理标签替换
         # 下级接口负责所有业务逻辑处理，包括用户交互、数据验证和结果反馈
         self.json.replace_label_with_ui(json_dict)
+        
+        # 标签替换后，重新统计标签并生成id_list，确保id_list包含所有当前标签
+        try:
+            # 获取更新后的json_dict
+            json_dict = self.models.json.get_json_dict()
+            
+            # 重新统计标签
+            count_dict = self.json.count_label(json_dict)
+            self.models.json.set_count_dict(count_dict)
+            
+            # 重新生成id_list
+            id_list = self.json.generate_id(count_dict)
+            self.models.json.set_id_list(id_list)
+            
+            # 更新显示
+            self.views.set_count_label(str(count_dict))
+            self.views.set_id_label(str(id_list))
+        except (Error, AttributeError, KeyError):
+            # 如果更新失败，不影响替换功能，只是id_list可能不包含新标签
+            # 但我们已经添加了错误处理，不会导致生成TIF失败
+            pass
 
     def json_delete_label(self):
         """
@@ -119,6 +152,9 @@ class Presenters:
         """
         try:
             label = self.views.ask_label("标签删除", "请输入要删除的标签名称:")
+            # 检查用户是否取消了输入
+            if not label:
+                return
             # 加载 json
             json_dict = self.models.json.get_json_dict()
 
@@ -127,6 +163,9 @@ class Presenters:
 
             # 保存 json
             save_path = self.views.ask_save_path("JSON", ".json", "json_delete")
+            # 检查用户是否取消了保存路径选择
+            if not save_path:
+                return
             self.json.save_json(json_dict, save_path)
         except Error as e:
             self.views.show_error(str(e))
@@ -145,6 +184,9 @@ class Presenters:
 
             # 保存 tif
             save_path = self.views.ask_save_path("TIF", ".tif", "json_convert_to_tif")
+            # 检查用户是否取消了保存路径选择
+            if not save_path:
+                return
             self.tif.save_tif(ndarray, save_path)
         except Error as e:
             self.views.show_error(str(e))
@@ -172,6 +214,9 @@ class Presenters:
 
             # 保存为MAT文件
             save_path = self.views.ask_save_path("MAT", ".mat", "json_convert_to_mat")
+            # 检查用户是否取消了保存路径选择
+            if not save_path:
+                return
             self.mat.save_mat(mat_data, save_path)
         except Error as e:
             self.views.show_error(str(e))
@@ -183,28 +228,59 @@ class Presenters:
         try:
             json_dict = self.models.json.get_json_dict()
             id_list = self.models.json.get_id_list()
-            json_ndarray = self.json.convert_to_ndarray_gray(json_dict, id_list, -1)
+            
+            # 生成灰度图片（用于MAT）
+            json_ndarray_gray = self.json.convert_to_ndarray_gray(json_dict, id_list, -1)
+            
+            # 生成RGB彩色图片（用于TIF，和convert_to_tif一样）
+            json_ndarray_rgb = self.json.convert_to_ndarray_rgb(json_dict, id_list, -1)
 
             # 通过弹窗获取裁剪坐标
             coordinates = self.views.ask_resize_coordinates()
             if coordinates is None:
                 return  # 用户取消了输入
             
+            # 对调坐标：x1和y1对调，x2和y2对调
             x1, y1, x2, y2 = coordinates
+            x1, y1 = y1, x1  # 交换x1和y1
+            x2, y2 = y2, x2  # 交换x2和y2
 
+            # 裁剪灰度图像
+            cropped_gray = json_ndarray_gray[x1:x2, y1:y2]
+            
+            # 对裁剪后的ground truth进行重新映射
+            # 找出所有唯一的ID值（排除0）
+            unique_ids = np.unique(cropped_gray)
+            unique_ids = unique_ids[unique_ids > 0]  # 排除背景0
+            unique_ids = np.sort(unique_ids)  # 从小到大排序
+            
+            # 创建映射字典：背景0->0，其他按顺序映射为1,2,3...
+            id_mapping = {0: 0}  # 背景保持为0
+            for new_id, old_id in enumerate(unique_ids, start=1):
+                id_mapping[int(old_id)] = new_id
+            
+            # 应用映射
+            remapped_gray = np.zeros_like(cropped_gray)
+            for old_id, new_id in id_mapping.items():
+                remapped_gray[cropped_gray == old_id] = new_id
+
+            # 保存裁剪并重新映射后的MAT文件（灰度）
             save_path = self.views.ask_save_path(
                 "MAT", ".mat", "json_convert_to_mat_resize"
             )
             if not save_path:
                 return  # 用户取消了保存路径选择
             
-            self.mat.save_mat_resize(json_ndarray, x1, y1, x2, y2, save_path)
+            self.mat.save_mat(remapped_gray, save_path)
             
+            # 保存裁剪后的RGB彩色TIF文件（和convert_to_tif一样）
             save_path = self.views.ask_save_path(
-                "TIF", ".tif", "json_convert_to_mat_resize"
+                "TIF", ".tif", "json_convert_to_mat_resize_rgb"
             )
             if save_path:
-                self.tif.save_tif(json_ndarray, save_path)
+                # 裁剪RGB图片
+                cropped_rgb = json_ndarray_rgb[x1:x2, y1:y2, :]
+                self.tif.save_tif(cropped_rgb, save_path)
         except Error as e:
             self.views.show_error(str(e))
 
@@ -212,6 +288,9 @@ class Presenters:
     def tif_open(self):
         try:
             tif_path = self.views.ask_open_path("TIF", ".tif")
+            # 检查用户是否取消了文件选择
+            if not tif_path:
+                return
             self.models.tif.set_tif_path(tif_path)
 
             tif_array = self.tif.load_tif(tif_path)
@@ -225,6 +304,9 @@ class Presenters:
     def tif_save(self):
         try:
             save_path = self.views.ask_save_path("TIF", ".tif", "tif_save")
+            # 检查用户是否取消了保存路径选择
+            if not save_path:
+                return
             tif_array = self.models.tif.get_tif_array()
 
             self.tif.save_tif(tif_array, save_path)
@@ -245,6 +327,9 @@ class Presenters:
             tif_ndarray = self.tif.draw_label(tif_ndarray, json_dict, id_list, 5)
 
             seve_path = self.views.ask_save_path("TIF", ".tif", "tif_draw_label")
+            # 检查用户是否取消了保存路径选择
+            if not seve_path:
+                return
             # 保存 tif
             self.tif.save_tif(tif_ndarray, seve_path)
         except Error as e:
@@ -254,6 +339,9 @@ class Presenters:
     def mat_open(self):
         try:
             mat_path = self.views.ask_open_path("MAT", ".mat")
+            # 检查用户是否取消了文件选择
+            if not mat_path:
+                return
             mat_dict = self.mat.load_mat(mat_path)
             self.models.mat.set_mat_dict(mat_dict)
             self.models.mat.set_mat_path(mat_path)
@@ -266,6 +354,9 @@ class Presenters:
     def mat_save(self):
         try:
             save_path = self.views.ask_save_path("MAT", ".mat", "mat_save")
+            # 检查用户是否取消了保存路径选择
+            if not save_path:
+                return
             mat_dict = self.models.mat.get_mat_dict()
             self.mat.save_mat(mat_dict, save_path)
         except Error as e:
@@ -275,6 +366,9 @@ class Presenters:
     def hdr_open(self):
         try:
             hdr_path = self.views.ask_open_path("HDR", ".hdr")
+            # 检查用户是否取消了文件选择
+            if not hdr_path:
+                return
             self.models.hdr.set_hdr_path(hdr_path)
 
             hdr_path = self.models.hdr.get_hdr_path()
@@ -290,6 +384,9 @@ class Presenters:
         try:
             hdr_ndarray = self.models.hdr.get_hdr()
             save_path = self.views.ask_save_path("HDF5", ".hdf", "hdr_convert_to_mat")
+            # 检查用户是否取消了保存路径选择
+            if not save_path:
+                return
             self.hdr.save_hdf5(hdr_ndarray, save_path)
         except Error as e:
             self.views.show_error(str(e))
@@ -303,7 +400,10 @@ class Presenters:
             if coordinates is None:
                 return  # 用户取消了输入
             
+            # 对调坐标：x1和y1对调，x2和y2对调
             x1, y1, x2, y2 = coordinates
+            x1, y1 = y1, x1  # 交换x1和y1
+            x2, y2 = y2, x2  # 交换x2和y2
 
             save_path = self.views.ask_save_path(
                 "HDF5", ".hdf", "hdr_convert_to_mat_resize"
