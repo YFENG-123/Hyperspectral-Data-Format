@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from views import Views
 from models import Models
@@ -270,7 +271,16 @@ class Presenters:
             )
             if not save_path:
                 return  # 用户取消了保存路径选择
-            
+
+            # 构建新ID到类别名的映射并保存为TXT（与MAT同目录）
+            new_id_to_label = {}
+            for old_id, new_id in id_mapping.items():
+                new_id_to_label[new_id] = id_list[old_id]
+            txt_path = os.path.splitext(save_path)[0] + "_id_label_mapping.txt"
+            with open(txt_path, "w", encoding="utf-8") as f:
+                for new_id in sorted(new_id_to_label.keys()):
+                    f.write(f"{new_id} {new_id_to_label[new_id]}\n")
+
             self.mat.save_mat(remapped_gray, save_path)
             
             # 保存裁剪后的RGB彩色TIF文件（和convert_to_tif一样）
